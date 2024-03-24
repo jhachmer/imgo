@@ -2,9 +2,12 @@ package utils
 
 import (
 	"image"
+	"image/color"
 	"image/png"
 	"log"
 	"os"
+
+	m "github.com/jhachmer/gocv/model"
 )
 
 func RgbaToGray(img image.Image) *image.Gray {
@@ -21,7 +24,7 @@ func RgbaToGray(img image.Image) *image.Gray {
 	return gray
 }
 
-func ConvertToGrayscaleImage(path string) *image.Gray {
+func ConvertImageToGrayPNG(path string) *image.Gray {
 	sourceFile, err := os.Open(path)
 	if err != nil {
 		log.Fatal(err)
@@ -35,7 +38,7 @@ func ConvertToGrayscaleImage(path string) *image.Gray {
 	return RgbaToGray(sourceImg)
 }
 
-func WriteToFile(outputFileName string, newImage *image.Gray) {
+func WriteGrayToFilePNG(outputFileName string, newImage *image.Gray) {
 	f, err := os.Create(outputFileName + ".png")
 	if err != nil {
 		log.Fatal(err)
@@ -44,4 +47,21 @@ func WriteToFile(outputFileName string, newImage *image.Gray) {
 	if err := png.Encode(f, newImage); err != nil {
 		log.Fatal(err)
 	}
+}
+
+// TODO: input type ???? make usable for more
+func CreateNewGrayFromGradient(gradP *[][]m.Gradient2D) (x, y *image.Gray) {
+	grad := *gradP
+	var (
+		bounds = image.Rect(0, 0, len(grad[0]), len(grad))
+		gradX  = image.NewGray(bounds)
+		gradY  = image.NewGray(bounds)
+	)
+	for posY := range grad {
+		for posX := range grad[posY] {
+			gradX.SetGray(posX, posY, color.Gray{Y: grad[posX][posY].X})
+			gradY.SetGray(posX, posY, color.Gray{Y: grad[posX][posY].Y})
+		}
+	}
+	return gradX, gradY
 }
