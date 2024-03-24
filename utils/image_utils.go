@@ -1,11 +1,13 @@
 package utils
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"image/png"
 	"log"
 	"os"
+	"slices"
 
 	m "github.com/jhachmer/gocv/model"
 )
@@ -50,18 +52,38 @@ func WriteGrayToFilePNG(outputFileName string, newImage *image.Gray) {
 }
 
 // TODO: input type ???? make usable for more
-func CreateNewGrayFromGradient(gradP *[][]m.Gradient2D) (x, y *image.Gray) {
-	grad := *gradP
+func CreateNewGrayFromGradient(gradP [][]m.Gradient2D) (x, y *image.Gray) {
 	var (
-		bounds = image.Rect(0, 0, len(grad[0]), len(grad))
+		bounds = image.Rect(0, 0, len(gradP[0]), len(gradP))
 		gradX  = image.NewGray(bounds)
 		gradY  = image.NewGray(bounds)
 	)
-	for posY := range grad {
-		for posX := range grad[posY] {
-			gradX.SetGray(posX, posY, color.Gray{Y: grad[posX][posY].X})
-			gradY.SetGray(posX, posY, color.Gray{Y: grad[posX][posY].Y})
+
+	for posY := 0; posY < bounds.Max.Y; posY++ {
+		for posX := 0; posX < bounds.Max.X; posX++ {
+			gradX.SetGray(posX, posY, color.Gray{Y: uint8(gradP[posY][posX].X)})
+			gradY.SetGray(posX, posY, color.Gray{Y: uint8(gradP[posY][posX].Y)})
 		}
 	}
 	return gradX, gradY
+}
+
+func CreateNewMagnitudeFromGradient(pixels [][]uint8) *image.Gray {
+	gray := image.NewGray(image.Rect(0, 0, len(pixels[0]), len(pixels)))
+	var max uint8 = 0
+	for j := range pixels {
+		subMax := slices.Max(pixels[j])
+		if subMax > max {
+			max = subMax
+		}
+	}
+	var factor float64 = 255.0 / float64(max)
+	fmt.Println(factor)
+	for u := 0; u < gray.Bounds().Max.X; u++ {
+		for v := 0; v < gray.Bounds().Max.Y; v++ {
+			magValue := uint8(float64(pixels[v][u]) * factor)
+			gray.SetGray(u, v, color.Gray{Y: magValue})
+		}
+	}
+	return gray
 }
