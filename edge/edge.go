@@ -58,7 +58,6 @@ func SobelOperator(grayImg *image.Gray) [][]m.Gradient2D {
 			}
 			if sumGradX > 255 {
 				sumGradX = 255
-
 			}
 			if sumGradY < 0 {
 				sumGradY = 0

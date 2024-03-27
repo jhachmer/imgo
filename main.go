@@ -22,15 +22,19 @@ func main() {
 	//*/
 	//
 	gauss5x5 := [][]int{
-		{1, 4, 6, 4, 1},
-		{4, 16, 24, 16, 4},
-		{6, 24, 36, 24, 6},
-		{4, 16, 24, 16, 4},
-		{1, 4, 6, 4, 1},
+		{1, 4, 7, 4, 1},
+		{4, 16, 26, 16, 4},
+		{7, 26, 41, 26, 7},
+		{4, 16, 26, 16, 4},
+		{1, 4, 7, 4, 1},
 	}
 
 	inputImg := utils.ConvertImageToGrayPNG("Camera_obscura.png")
 	blurredImg := filter.Apply2DFilter(inputImg, gauss5x5)
+
+	utils.WriteGrayToFilePNG("input", inputImg)
+	utils.WriteGrayToFilePNG("gauss", blurredImg)
+
 	gradientSlice := edge.SobelOperator(blurredImg)
 
 	magPixels := edge.CalcMagnitudeFromGradient(gradientSlice)

@@ -6,8 +6,10 @@ import (
 	"math"
 )
 
-// Apply2DFilter Applies given Filter to input image
+// Apply2DFilter Applies given Filter to input (grayscale) image.
+// Returns grayscale image with apllied filter
 func Apply2DFilter(grayImg *image.Gray, filter [][]int) *image.Gray {
+	// Scale by sum of filter coefficients
 	var filterMatrixSum int
 	for _, outer := range filter {
 		for _, inner := range outer {
@@ -31,6 +33,7 @@ func Apply2DFilter(grayImg *image.Gray, filter [][]int) *image.Gray {
 					sum = sum + c*p
 				}
 			}
+			// Clamping if necessary
 			q := int(math.Round(s * float64(sum)))
 			if q < 0 {
 				q = 0
