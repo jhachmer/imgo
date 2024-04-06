@@ -7,7 +7,7 @@ import (
 )
 
 // Apply2DFilter Applies given Filter to input (grayscale) image.
-// Returns grayscale image with apllied filter
+// Returns grayscale image with applied filter
 func Apply2DFilter(grayImg *image.Gray, filter [][]int) *image.Gray {
 	// Scale by sum of filter coefficients
 	var filterMatrixSum int
