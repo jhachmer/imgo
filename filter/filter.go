@@ -4,14 +4,15 @@ import (
 	"image"
 	"image/color"
 	"math"
+  "github.com/jhachmer/gocv/model"
 )
 
 // Apply2DFilter Applies given Filter to input (grayscale) image.
 // Returns grayscale image with applied filter
-func Apply2DFilter(grayImg *image.Gray, filter [][]int) *image.Gray {
+func Apply2DFilter(grayImg *image.Gray, filter model.Filter2D) *image.Gray {
 	// Scale by sum of filter coefficients
 	var filterMatrixSum int
-	for _, outer := range filter {
+	for _, outer := range filter.Kernel.Values {
 		for _, inner := range outer {
 			filterMatrixSum += inner
 		}
