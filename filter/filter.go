@@ -1,5 +1,6 @@
-package filter
 
+package filter
+/*
 import (
 	"image"
 	"image/color"
@@ -47,3 +48,4 @@ func Apply2DFilter(grayImg *image.Gray, filter model.Filter2D) *image.Gray {
 	}
 	return newImage
 }
+*/

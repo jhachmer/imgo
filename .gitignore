@@ -23,3 +23,7 @@ go.work
 
 *.png
 *.jpg
+
+.null-ls*
+
+gocv
