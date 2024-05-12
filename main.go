@@ -1,65 +1,53 @@
 package main
 
-import "fmt"
-
-/*
 import (
+	"fmt"
 
 	"github.com/jhachmer/gocv/edge"
 	"github.com/jhachmer/gocv/filter"
+	"github.com/jhachmer/gocv/model"
 	"github.com/jhachmer/gocv/utils"
-
 )
-*/
+
 func main() {
 
-	//sharpFilter := [][]int{
-	//	{0, -1, 0},
-	//	{-1, 5, -1},
-	//	{0, -1, 0},
-	//}
-	///*
-	//gaussianFilter := [][]int{
-	//	{1, 2, 1},
-	//	{2, 4, 2},
-	//	{1, 2, 1},
-	//}
-	//*/
-	//
-	//gauss5x5 := [][]int{
-	//	{1, 4, 7, 4, 1},
-	//	{4, 16, 26, 16, 4},
-	//	{7, 26, 41, 26, 7},
-	//	{4, 16, 26, 16, 4},
-	//	{1, 4, 7, 4, 1},
-	//}
-	/*
-		gauss7x7 := [][]int{
-			{0, 0, 1, 2, 1, 0, 0},
-			{0, 3, 13, 22, 13, 3, 0},
-			{1, 13, 59, 97, 59, 13, 1},
-			{2, 22, 97, 159, 97, 22, 2},
-			{1, 13, 59, 97, 59, 13, 1},
-			{0, 3, 13, 22, 13, 3, 0},
-			{0, 0, 1, 2, 1, 0, 0},
-		}
+	outFolder := "out/"
 
-		inputImg := utils.ConvertImageToGrayPNG("siwi.png")
-		blurredImg := filter.Apply2DFilter(inputImg, gauss7x7)
+	gauss7x7 := [][]int{
+		{0, 0, 1, 2, 1, 0, 0},
+		{0, 3, 13, 22, 13, 3, 0},
+		{1, 13, 59, 97, 59, 13, 1},
+		{2, 22, 97, 159, 97, 22, 2},
+		{1, 13, 59, 97, 59, 13, 1},
+		{0, 3, 13, 22, 13, 3, 0},
+		{0, 0, 1, 2, 1, 0, 0},
+	}
 
-		utils.WriteGrayToFilePNG("input", inputImg)
-		utils.WriteGrayToFilePNG("gauss", blurredImg)
+	k7x7 := model.NewKernel2D(gauss7x7)
 
-		gradientSlice := edge.SobelOperator(blurredImg)
+	inputImg := utils.ConvertImageToGrayPNG("images/siwi.png")
+	blurredImg := filter.Apply2DFilter(inputImg, *k7x7)
 
-		magPixels := edge.CalcMagnitudeFromGradient(gradientSlice)
-		grayMag := utils.CreateNewMagnitudeFromGradient(magPixels)
+	utils.WriteGrayToFilePNG(outFolder+"input", inputImg)
+	utils.WriteGrayToFilePNG(outFolder+"gauss", blurredImg)
 
-		utils.WriteGrayToFilePNG("magpix", grayMag)
+	gradientSlice, err := edge.SobelOperator(blurredImg)
+	if err != nil {
+		panic(err)
+	}
 
-		imgGradX, imgGradY := utils.CreateNewGrayFromGradient(gradientSlice)
-		utils.WriteGrayToFilePNG("xgrad", imgGradX)
-		utils.WriteGrayToFilePNG("ygrad", imgGradY)
-	*/
+	magPixels := edge.BuildGradientMagnitudeSlice(gradientSlice, edge.SOBEL_COEFF_SUM)
+
+	canny := edge.CannyEdgeDetector(gradientSlice, magPixels, 15, 60)
+	cannyImage := utils.SliceToImage(canny)
+	utils.WriteGrayToFilePNG("out/canny", cannyImage)
+	grayMag := utils.CreateMagnitudeGrayImageFromGradient(magPixels)
+
+	utils.WriteGrayToFilePNG(outFolder+"magpix", grayMag)
+
+	//imgGradX, imgGradY := utils.CreateXAndYGradientGrayImage(gradientSlice)
+	//utils.WriteGrayToFilePNG(outFolder+"xgrad", imgGradX)
+	//utils.WriteGrayToFilePNG(outFolder+"ygrad", imgGradY)
+
 	fmt.Println("Irgendwas")
 }
