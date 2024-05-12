@@ -27,3 +27,5 @@ go.work
 .null-ls*
 
 gocv
+
+*.py
