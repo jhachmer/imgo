@@ -8,8 +8,6 @@ import (
 	"log"
 	"os"
 	"slices"
-
-	m "github.com/jhachmer/gocv/model"
 )
 
 func RgbaToGray(img image.Image) *image.Gray {
@@ -51,34 +49,20 @@ func WriteGrayToFilePNG(outputFileName string, newImage *image.Gray) {
 	}
 }
 
-// TODO: input type ???? make usable for more
-func CreateNewGrayFromGradient(gradP [][]m.Gradient2D) (x, y *image.Gray) {
-	var (
-		bounds = image.Rect(0, 0, len(gradP[0]), len(gradP))
-		gradX  = image.NewGray(bounds)
-		gradY  = image.NewGray(bounds)
-	)
-
-	for posY := 0; posY < bounds.Max.Y; posY++ {
-		for posX := 0; posX < bounds.Max.X; posX++ {
-			gradX.SetGray(posX, posY, color.Gray{Y: uint8(gradP[posY][posX].X)})
-			gradY.SetGray(posX, posY, color.Gray{Y: uint8(gradP[posY][posX].Y)})
-		}
-	}
-	return gradX, gradY
-}
-
-func CreateNewMagnitudeFromGradient(pixels [][]uint8) *image.Gray {
+func CreateMagnitudeGrayImageFromGradient(pixels [][]uint8) *image.Gray {
 	gray := image.NewGray(image.Rect(0, 0, len(pixels[0]), len(pixels)))
-	var max uint8 = 0
-	for j := range pixels {
+
+	var curMax uint8 = 0
+
+	for j := 0; j <= gray.Bounds().Max.Y-1; j++ {
 		subMax := slices.Max(pixels[j])
-		if subMax > max {
-			max = subMax
+		if subMax > curMax {
+			curMax = subMax
 		}
 	}
-	var factor float64 = 255.0 / float64(max)
-	fmt.Println(factor)
+
+	var factor float64 = 255.0 / float64(curMax)
+	fmt.Printf("Scale Factor %v\n", factor)
 	for u := 0; u < gray.Bounds().Max.X; u++ {
 		for v := 0; v < gray.Bounds().Max.Y; v++ {
 			magValue := uint8(float64(pixels[v][u]) * factor)
@@ -86,4 +70,18 @@ func CreateNewMagnitudeFromGradient(pixels [][]uint8) *image.Gray {
 		}
 	}
 	return gray
+}
+
+func SliceToImage(pixels [][]uint8) *image.Gray {
+	var (
+		bounds = image.Rect(0, 0, len(pixels[0]), len(pixels))
+		canny  = image.NewGray(bounds)
+	)
+
+	for posY := 0; posY < bounds.Max.Y; posY++ {
+		for posX := 0; posX < bounds.Max.X; posX++ {
+			canny.SetGray(posX, posY, color.Gray{Y: uint8(pixels[posY][posX])})
+		}
+	}
+	return canny
 }
