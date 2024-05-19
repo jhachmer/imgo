@@ -10,7 +10,7 @@ import (
 	"slices"
 )
 
-func RgbaToGray(img image.Image) *image.Gray {
+func ConvertToGrayScale(img image.Image) *image.Gray {
 	var (
 		bounds = img.Bounds()
 		gray   = image.NewGray(bounds)
@@ -24,18 +24,18 @@ func RgbaToGray(img image.Image) *image.Gray {
 	return gray
 }
 
-func ConvertImageToGrayPNG(path string) *image.Gray {
+func ReadImageFromPath(path string) *image.Image {
 	sourceFile, err := os.Open(path)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer sourceFile.Close()
 
-	sourceImg, err := png.Decode(sourceFile)
+	sourceImg, _, err := image.Decode(sourceFile)
 	if err != nil {
 		log.Fatal(err)
 	}
-	return RgbaToGray(sourceImg)
+	return &sourceImg
 }
 
 func WriteGrayToFilePNG(outputFileName string, newImage *image.Gray) {
