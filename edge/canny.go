@@ -3,7 +3,7 @@ package edge
 import (
 	"math"
 
-	"github.com/jhachmer/gocv/model"
+	"github.com/jhachmer/gocvlite/model"
 )
 
 // getOrientationSector returns neighbouring pixel of current pixel in gradient direction
@@ -36,10 +36,12 @@ func getOrientationSector(dx int, dy int) int {
 
 func isLocalMax(eMAG [][]uint8, u, v, sAng, tLow int) bool {
 	var ml, mr uint8
+
 	mc := eMAG[v][u]
 	if int(mc) < tLow {
 		return false
 	}
+
 	switch sAng {
 	case 0:
 		ml = eMAG[v][u-1]
@@ -102,8 +104,8 @@ func CannyEdgeDetector(grad [][]model.Gradient2D, eMAG [][]uint8, tLOW, tHIGH in
 		}
 	}
 
-	for u := 0; u < M-1; u++ {
-		for v := 0; v < N-1; v++ {
+	for u := 1; u < M-2; u++ {
+		for v := 1; v < N-2; v++ {
 			if (eNMS[v][u] >= uint8(tHIGH)) && eBIN[v][u] == 0 {
 				traceAndTreshold(eNMS, eBIN, u, v, tLOW, M, N)
 			}

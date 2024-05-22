@@ -26,6 +26,8 @@ go.work
 
 .null-ls*
 
-gocv
+gocvlite
 
 *.py
+
+.idea

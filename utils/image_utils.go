@@ -10,6 +10,7 @@ import (
 	"slices"
 )
 
+// ConvertToGrayScale Converts input to grayscale image
 func ConvertToGrayScale(img image.Image) *image.Gray {
 	var (
 		bounds = img.Bounds()
@@ -24,6 +25,9 @@ func ConvertToGrayScale(img image.Image) *image.Gray {
 	return gray
 }
 
+// ReadImageFromPath Reads an image from filesystem
+// Requires filepath from working directory
+// Returns image as pointer to Go-type image.Image
 func ReadImageFromPath(path string) *image.Image {
 	sourceFile, err := os.Open(path)
 	if err != nil {
@@ -38,6 +42,8 @@ func ReadImageFromPath(path string) *image.Image {
 	return &sourceImg
 }
 
+// WriteGrayToFilePNG Writes Go image to filesystem
+// Creates image at given filepath
 func WriteGrayToFilePNG(outputFileName string, newImage *image.Gray) {
 	f, err := os.Create(outputFileName + ".png")
 	if err != nil {
@@ -49,12 +55,13 @@ func WriteGrayToFilePNG(outputFileName string, newImage *image.Gray) {
 	}
 }
 
+// CreateMagnitudeGrayImageFromGradient Converts 2D-Slice of Gradient Pixels to image of gradient magnitudes
 func CreateMagnitudeGrayImageFromGradient(pixels [][]uint8) *image.Gray {
 	gray := image.NewGray(image.Rect(0, 0, len(pixels[0]), len(pixels)))
 
 	var curMax uint8 = 0
 
-	for j := 0; j <= gray.Bounds().Max.Y-1; j++ {
+	for j := 0; j <= len(pixels)-1; j++ {
 		subMax := slices.Max(pixels[j])
 		if subMax > curMax {
 			curMax = subMax
@@ -72,14 +79,15 @@ func CreateMagnitudeGrayImageFromGradient(pixels [][]uint8) *image.Gray {
 	return gray
 }
 
+// SliceToImage Converts a 2D-Slice to an image
+// can be saved to file system using decoder
 func SliceToImage(pixels [][]uint8) *image.Gray {
 	var (
 		bounds = image.Rect(0, 0, len(pixels[0]), len(pixels))
 		canny  = image.NewGray(bounds)
 	)
-
-	for posY := 0; posY < bounds.Max.Y; posY++ {
-		for posX := 0; posX < bounds.Max.X; posX++ {
+	for posY := 0; posY < len(pixels); posY++ {
+		for posX := 0; posX < len(pixels[posY]); posX++ {
 			canny.SetGray(posX, posY, color.Gray{Y: uint8(pixels[posY][posX])})
 		}
 	}
