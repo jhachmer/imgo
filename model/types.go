@@ -27,7 +27,7 @@ type Kernel1D struct {
 	Len    int
 }
 
-func (g Gradient2D) CalcMagnitude(scale int) uint8 {
+func (g Gradient2D) CalcMagnitude() uint8 {
 	// Adjust number range
 	//
 	var gX int = int(g.X - 127)
