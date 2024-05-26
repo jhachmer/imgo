@@ -1,3 +1,3 @@
-module "github.com/jhachmer/gocvlite"
+module github.com/jhachmer/gocvlite
 
 go 1.22
