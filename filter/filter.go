@@ -1,7 +1,6 @@
 package filter
 
 import (
-	"fmt"
 	"image"
 	"image/color"
 	"math"
@@ -10,30 +9,31 @@ import (
 	"github.com/jhachmer/gocvlite/utils"
 )
 
-// Apply2DFilter Applies given Filter to input (grayscale) image.
+// Apply2DFilter Applies given 2D-Filter to input (grayscale) image.
 // Returns grayscale image with applied filter
-func Apply2DFilter(grayImg *image.Gray, k model.Kernel2D) *image.Gray {
+func Apply2DFilterToGray(grayImg *image.Gray, k model.Kernel2D) *image.Gray {
 	// Scale by sum of filter coefficients
 	s := 1.0 / float64(k.Size)
+
+	boundsMaxX := grayImg.Bounds().Max.X
+	boundsMaxY := grayImg.Bounds().Max.Y
 
 	newImage := image.NewGray(grayImg.Bounds())
 
 	K := k.XLen / 2
 	L := k.YLen / 2
-	fmt.Println(K)
-	fmt.Println(L)
 	var (
 		xPix int
 		yPix int
 	)
 
-	for v := 0; v < grayImg.Bounds().Max.Y; v++ {
-		for u := 0; u < grayImg.Bounds().Max.X; u++ {
+	for v := 0; v < boundsMaxY; v++ {
+		for u := 0; u < boundsMaxX; u++ {
 			sum := 0
 			for j := -L; j <= L; j++ {
 				for i := -K; i <= K; i++ {
-					if u+i < 0 || v+j < 0 || u+i > grayImg.Bounds().Max.X || v+j > grayImg.Bounds().Max.Y {
-						xPix, yPix = utils.BorderDetection(u, v, i, j, grayImg.Bounds().Max.X, grayImg.Bounds().Max.Y)
+					if u+i < 0 || v+j < 0 || u+i >= boundsMaxX || v+j >= boundsMaxY {
+						xPix, yPix = utils.BorderDetection(u, v, i, j, boundsMaxX, boundsMaxY)
 					} else {
 						xPix, yPix = u+i, v+j
 					}
