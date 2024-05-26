@@ -5,8 +5,8 @@ import (
 )
 
 type Gradient2D struct {
-	X int
-	Y int
+	X float64
+	Y float64
 }
 
 type Imaginary struct {
