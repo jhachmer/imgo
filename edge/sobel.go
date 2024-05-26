@@ -3,25 +3,37 @@ package edge
 import (
 	"errors"
 	"image"
+	"math"
 
 	"github.com/jhachmer/gocvlite/model"
 	"github.com/jhachmer/gocvlite/utils"
 )
 
-var SOBEL_KERNEL_X model.Kernel2D = *model.NewKernel2D([][]int{
-	{-3, 0, 3},
-	{-10, 0, 10},
-	{-3, 0, 3},
-})
 
-var SOBEL_KERNEL_Y model.Kernel2D = *model.NewKernel2D([][]int{
-	{-3, -10, -3},
+func sobelKernelXAndY() (kernX, kernY model.Kernel2D) {
+
+    sobelKernelX, err := model.NewKernel2D([][]int{
+	{-1, 0, 1},
+	{-2, 0, 2},
+	{-1, 0, 1},
+})
+    if err != nil {
+        panic(err)
+    }
+
+    sobelKernelY, err := model.NewKernel2D([][]int{
+	{-1, -2, -1},
 	{0, 0, 0},
-	{3, 10, 3},
+	{1, 2, 1},
 })
+    
+    if err != nil {
+        panic("invalid kernel")
+    }
+    return *sobelKernelX, *sobelKernelY
+}
 
-var SOBEL_HALF_KERNEL_SIZE = SOBEL_KERNEL_X.XLen / 2
-var SOBEL_COEFF_SUM = 32
+
 
 // SobelOperator Applies Sobel Kernel to given (grayscale) image
 // Returns 2D-Slice containing Gradient-(Vectors) for each pixel
@@ -29,18 +41,24 @@ func SobelOperator(grayImg *image.Gray) ([][]model.Gradient2D, error) {
 	var (
 		boundsMaxX = grayImg.Bounds().Max.X
 		boundsMaxY = grayImg.Bounds().Max.Y
-	)
+        K int
+        L int
+    )
 
-	kernelX := SOBEL_KERNEL_X
-	kernelY := SOBEL_KERNEL_Y
+	kernelX, kernelY := sobelKernelXAndY()
 
 	// Should never happen, but who knows?
 	if kernelX.Size != kernelY.Size {
 		return nil, errors.New("x and y kernel sizes dont match")
 	}
 
-	K := SOBEL_HALF_KERNEL_SIZE //kernelX.XLen / 2
-	L := SOBEL_HALF_KERNEL_SIZE //kernelX.YLen / 2
+	xK, xL := kernelX.GetHalfKernelSize()
+    yK, yL := kernelY.GetHalfKernelSize()
+    if xK != yK && xL != yL {
+        return nil, errors.New("X- and Y-Kernel dimensions do not match")
+    } else {
+        K, L = xK, xL
+    }
 
 	// Allocate 2D Slice for Gradient Values
 	grad2D := make([][]model.Gradient2D, boundsMaxY)
@@ -60,8 +78,8 @@ func SobelOperator(grayImg *image.Gray) ([][]model.Gradient2D, error) {
 			sumGradY = 0
 			for j := -L; j <= L; j++ {
 				for i := -K; i <= K; i++ {
-					if u+i < 0 || v+j < 0 || u+i >= boundsMaxX-1 || v+j >= boundsMaxY-1 {
-						xPix, yPix = utils.BorderDetection(u, v, i, j, boundsMaxX-1, boundsMaxY-1)
+					if u+i < 0 || v+j < 0 || u+i >= boundsMaxX || v+j >= boundsMaxY {
+						xPix, yPix = utils.BorderDetection(u, v, i, j, boundsMaxX, boundsMaxY)
 					} else {
 						xPix, yPix = u+i, v+j
 					}
@@ -75,16 +93,11 @@ func SobelOperator(grayImg *image.Gray) ([][]model.Gradient2D, error) {
 					sumGradY += int(sourcePix) * kernY
 				}
 			}
-			//sumGradX /= SOBEL_COEFF_SUM
-			//sumGradY /= SOBEL_COEFF_SUM
-			// Adjust to negative number range
-			//sumGradX += 127
-			//sumGradY += 127
-			// clamp if necessary
-			//sumGradX = utils.ClampPixel(sumGradX, 255, 0)
-			//sumGradY = utils.ClampPixel(sumGradY, 255, 0)
-			grad2D[v][u].X = sumGradX
-			grad2D[v][u].Y = sumGradY
+			uFX, uFY := math.Abs(float64(sumGradX)), math.Abs(float64(sumGradY))
+
+			// uFX, uFY = uFX/float64(SOBEL_COEFF_SUM), uFY/float64(SOBEL_COEFF_SUM)
+			grad2D[v][u].X = uFX
+			grad2D[v][u].Y = uFY
 		}
 	}
 
@@ -98,7 +111,7 @@ func BuildGradientMagnitudeSlice(grad [][]model.Gradient2D) [][]uint8 {
 	}
 	for v := 0; v < len(grad); v++ {
 		for u := 0; u < len(grad[v]); u++ {
-			mag2D[v][u] = grad[v][u].CalcMagnitude(SOBEL_COEFF_SUM)
+			mag2D[v][u] = grad[v][u].CalcMagnitude()
 		}
 	}
 
