@@ -29,14 +29,15 @@ type Kernel1D struct {
 
 func (g Gradient2D) CalcMagnitude() uint8 {
 	// Adjust number range
-	//
-	var gX int = int(g.X - 127)
-	var gY int = int(g.Y - 127)
-	scaledGX := float64(gX) * (1.0 / float64(scale))
-	scaledGY := float64(gY) * (1.0 / float64(scale))
-	det := float64((scaledGX * scaledGX) + (scaledGY * scaledGY))
 
-	return uint8(math.Sqrt(det))
+	v := uint32(math.Ceil(math.Sqrt(float64((g.X * g.X) + (g.Y * g.Y)))))
+
+	if v > 250 {
+		v = 255
+	} else if v < 5 {
+		v = 0
+	}
+	return uint8(v)
 }
 
 func (k Kernel2D) CalcCoeffSum() int {
