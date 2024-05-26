@@ -8,17 +8,17 @@ func BorderDetection(u, v, i, j, xMax, yMax int) (int, int) {
 
 	if newU <= 0 {
 		if newV <= 0 {
-			return -u, -v
+			return -newU, -newV
 		} else {
-			return -u, v
+			return -newU, v
 		}
 	}
 
 	if newV <= 0 {
 		if newU <= 0 {
-			return -u, -v
+			return -newU, -newV
 		} else {
-			return u, -v
+			return u, -newV
 		}
 	}
 
@@ -37,6 +37,5 @@ func BorderDetection(u, v, i, j, xMax, yMax int) (int, int) {
 			return u, yMax - j
 		}
 	}
-
-	return u, v
+	return newU, newV
 }
