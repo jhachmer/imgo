@@ -28,7 +28,7 @@ func ConvertToGrayScale(img image.Image) *image.Gray {
 // ReadImageFromPath Reads an image from filesystem
 // Requires filepath from working directory
 // Returns image as pointer to Go-type image.Image
-func ReadImageFromPath(path string) *image.Image {
+func ReadImageFromPath(path string) image.Image {
 	sourceFile, err := os.Open(path)
 	if err != nil {
 		log.Fatal(err)
@@ -39,7 +39,7 @@ func ReadImageFromPath(path string) *image.Image {
 	if err != nil {
 		log.Fatal(err)
 	}
-	return &sourceImg
+	return sourceImg
 }
 
 // WriteGrayToFilePNG Writes Go image to filesystem
