@@ -10,7 +10,7 @@ import (
 // Returns sector in [0,1,2,3]
 // gradient gets rotated and negated if necessary
 // Calculates sector with comparisons
-func getOrientationSector(dx int, dy int) int {
+func getOrientationSector(dx, dy float64) int {
 	dxRot := (math.Cos(math.Pi/8) - math.Sin(math.Pi/8)) * float64(dx)
 	dyRot := (math.Sin(math.Pi/8) + math.Cos(math.Pi/8)) * float64(dy)
 
