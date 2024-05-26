@@ -1,7 +1,10 @@
 package model
 
 import (
+	"errors"
 	"math"
+
+	mathutil "github.com/jhachmer/gocvlite/mathutil"
 )
 
 type Gradient2D struct {
@@ -40,41 +43,64 @@ func (g Gradient2D) CalcMagnitude() uint8 {
 	return uint8(v)
 }
 
-func (k Kernel2D) CalcCoeffSum() int {
+func (k Kernel2D) CalcCoeffSum() (int, error) {
 	var sum int
 	for i := range k.Values {
 		for j := range k.Values[i] {
-			sum += k.Values[i][j]
+			sum += mathutil.Abs((k.Values[i][j]))
 		}
 	}
-
-	return sum
-}
-
-func (k Kernel1D) CalcCoeffSum() int {
-	var sum int
-	for i := range k.Values {
-		sum += k.Values[i]
+	if sum == 0 {
+		return 0, errors.New("Sum of filter coefficients is zero.")
 	}
 
-	return sum
+	return sum, nil
 }
 
-func NewKernel2D(values [][]int) *Kernel2D {
+func (k Kernel1D) CalcCoeffSum() (int, error) {
+	var sum int
+	for i := range k.Values {
+		sum += mathutil.Abs(k.Values[i])
+	}
+	if sum == 0 {
+		return 0, errors.New("Sum of filter coefficients is zero.")
+	}
+
+	return sum, nil
+}
+
+func (k Kernel2D) GetHalfKernelSize() (int, int) {
+	K := k.XLen / 2
+	L := k.YLen / 2
+	return K, L
+}
+
+func NewKernel2D(values [][]int) (*Kernel2D, error) {
 	k := new(Kernel2D)
 	k.Values = values
-	k.Size = k.CalcCoeffSum()
+	size, err := k.CalcCoeffSum()
+	if err != nil {
+		return nil, err
+	}
+	k.Size = size
 	k.XLen = len(values[0])
 	k.YLen = len(values)
+	if k.XLen != k.YLen {
+		return nil, errors.New("Dimensions of Kernel are not symmetrical")
+	}
 
-	return k
+	return k, nil
 }
 
-func NewKernel1D(values []int) *Kernel1D {
+func NewKernel1D(values []int) (*Kernel1D, error) {
 	k := new(Kernel1D)
 	k.Values = values
-	k.Size = k.CalcCoeffSum()
+	size, err := k.CalcCoeffSum()
+	if err != nil {
+		return nil, err
+	}
+	k.Size = size
 	k.Len = len(values)
 
-	return k
+	return k, nil
 }
