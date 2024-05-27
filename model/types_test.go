@@ -16,6 +16,13 @@ func TestNewKernel1D(t *testing.T) {
 	}
 }
 
+func TestNewKernel1DError(t *testing.T) {
+	_, err := NewKernel1D([]int{0, 0, 0})
+	if err == nil {
+		t.Error("want error for invalid input")
+	}
+}
+
 func TestNewKernel2D(t *testing.T) {
 	want := Kernel2D{Values: [][]int{{1, 1, 1}, {1, 1, 1}, {1, 1, 1}}, Size: 9}
 	got := NewKernel2D([][]int{{1, 1, 1}, {1, 1, 1}, {1, 1, 1}})
@@ -27,7 +34,14 @@ func TestNewKernel2D(t *testing.T) {
 	}
 }
 
-func TestCalcCoeffSum1D(t *testing.T) {
+func TestNewKernel2DError(t *testing.T) {
+	_, err := NewKernel2D([][]int{{0, 0, 0}, {0, 0, 0}, {0, 0, 0}})
+	if err == nil {
+		t.Error("want error for invalid input")
+	}
+}
+
+func TestCalcCoefficientSum1D(t *testing.T) {
 	k := Kernel1D{Values: []int{1, 1, 1}, Size: 3}
 	want := k.Size
 	got := k.CalcCoeffSum()
