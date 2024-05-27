@@ -90,3 +90,46 @@ func TestCalcMagnitude(t *testing.T) {
 		})
 	}
 }
+
+func TestKernel2D_GetHalfKernelSize(t *testing.T) {
+	tests := []struct {
+		name  string
+		k     Kernel2D
+		want  int
+		want1 int
+	}{
+		{
+			name: "3x3 Kernel",
+			k: Kernel2D{
+				Size:   9,
+				Values: [][]int{{1, 1, 1}, {1, 1, 1}, {1, 1, 1}},
+				XLen:   3,
+				YLen:   3,
+			},
+			want:  1,
+			want1: 1,
+		},
+		{
+			name: "5x5 Kernel",
+			k: Kernel2D{
+				Size:   25,
+				Values: [][]int{{1, 1, 1, 1, 1}, {1, 1, 1, 1, 1}, {1, 1, 1, 1, 1}, {1, 1, 1, 1, 1}, {1, 1, 1, 1, 1}},
+				XLen:   5,
+				YLen:   5,
+			},
+			want:  2,
+			want1: 2,
+		}, // TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, got1 := tt.k.GetHalfKernelSize()
+			if got != tt.want {
+				t.Errorf("Kernel2D.GetHalfKernelSize() got = %v, want %v", got, tt.want)
+			}
+			if got1 != tt.want1 {
+				t.Errorf("Kernel2D.GetHalfKernelSize() got1 = %v, want %v", got1, tt.want1)
+			}
+		})
+	}
+}
