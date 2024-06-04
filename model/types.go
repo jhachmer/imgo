@@ -2,9 +2,8 @@ package model
 
 import (
 	"errors"
+	"github.com/jhachmer/imgo/mathutil"
 	"math"
-
-	mathutil "github.com/jhachmer/gocvlite/mathutil"
 )
 
 type Gradient2D struct {

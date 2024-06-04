@@ -31,3 +31,5 @@ gocvlite
 *.py
 
 .idea
+
+main.go

@@ -3,7 +3,7 @@ package edge
 import (
 	"math"
 
-	"github.com/jhachmer/gocvlite/model"
+	"github.com/jhachmer/imgo/model"
 )
 
 // getOrientationSector returns neighbouring pixel of current pixel in gradient direction

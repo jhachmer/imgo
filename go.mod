@@ -1,3 +1,3 @@
-module github.com/jhachmer/gocvlite
+module github.com/jhachmer/imgo
 
 go 1.22

@@ -5,8 +5,8 @@ import (
 	"image"
 	"math"
 
-	"github.com/jhachmer/gocvlite/model"
-	"github.com/jhachmer/gocvlite/utils"
+	"github.com/jhachmer/imgo/model"
+	"github.com/jhachmer/imgo/utils"
 )
 
 
