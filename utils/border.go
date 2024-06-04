@@ -1,16 +1,16 @@
 package utils
 
-func BorderDetection(u, v, i, j, xMax, yMax int) (int, int) {
+func BorderDetection(u, v, iOffset, jOffset, xMax, yMax int) (int, int) {
 	var (
-		newU int = u + i
-		newV int = v + j
+		newU int = u + iOffset
+		newV int = v + jOffset
 	)
 
 	if newU <= 0 {
 		if newV <= 0 {
 			return -newU, -newV
 		} else {
-			return -newU, v
+			return -newU, newV
 		}
 	}
 
@@ -18,23 +18,23 @@ func BorderDetection(u, v, i, j, xMax, yMax int) (int, int) {
 		if newU <= 0 {
 			return -newU, -newV
 		} else {
-			return u, -newV
+			return newU, -newV
 		}
 	}
 
 	if newU >= xMax {
 		if newV >= yMax {
-			return xMax - i, yMax - j
+			return xMax - iOffset, yMax - jOffset
 		} else {
-			return xMax - i, v
+			return xMax - iOffset, newV
 		}
 	}
 
 	if newV >= yMax {
 		if newU >= xMax {
-			return xMax - i, yMax - j
+			return xMax - iOffset, yMax - jOffset
 		} else {
-			return u, yMax - j
+			return newU, yMax - jOffset
 		}
 	}
 	return newU, newV
