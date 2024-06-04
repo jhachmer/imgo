@@ -9,4 +9,3 @@ func ClampPixel(value, upper, lower int) int {
 	}
 	return value
 }
-
