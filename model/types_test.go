@@ -119,6 +119,17 @@ func TestKernel2D_GetHalfKernelSize(t *testing.T) {
 			},
 			want:  2,
 			want1: 2,
+		},
+		{
+			name: "7x7 Kernel",
+			k: Kernel2D{
+				Size:   25,
+				Values: [][]int{{1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1}},
+				XLen:   7,
+				YLen:   7,
+			},
+			want:  3,
+			want1: 3,
 		}, // TODO: Add test cases.
 	}
 	for _, tt := range tests {
