@@ -108,9 +108,15 @@ func BuildGradientMagnitudeSlice(grad [][]model.Gradient2D) [][]uint8 {
 
 	for v := 0; v < len(grad); v++ {
 		for u := 0; u < len(grad[v]); u++ {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
 			mag2D[v][u] = grad[v][u].CalcMagnitude()
+			}()
 		}
 	}
+
+	wg.Wait()
 
 	return mag2D
 }
