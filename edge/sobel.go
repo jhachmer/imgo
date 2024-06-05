@@ -9,8 +9,7 @@ import (
 	"github.com/jhachmer/imgo/utils"
 )
 
-
-func sobelKernelXAndY() (kernX, kernY model.Kernel2D) {
+func sobelKernelXAndY() (kernX, kernY *model.Kernel2D) {
 
     sobelKernelX, err := model.NewKernel2D([][]int{
 	{-1, 0, 1},
@@ -30,10 +29,8 @@ func sobelKernelXAndY() (kernX, kernY model.Kernel2D) {
     if err != nil {
         panic("invalid kernel")
     }
-    return *sobelKernelX, *sobelKernelY
+	return sobelKernelX, sobelKernelY
 }
-
-
 
 // SobelOperator Applies Sobel Kernel to given (grayscale) image
 // Returns 2D-Slice containing Gradient-(Vectors) for each pixel
