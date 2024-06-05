@@ -38,8 +38,8 @@ func SobelOperator(grayImg *image.Gray) ([][]model.Gradient2D, error) {
 	var (
 		boundsMaxX = grayImg.Bounds().Max.X
 		boundsMaxY = grayImg.Bounds().Max.Y
-        K int
-        L int
+		K          int
+		L          int
     )
 
 	kernelX, kernelY := sobelKernelXAndY()
@@ -52,7 +52,7 @@ func SobelOperator(grayImg *image.Gray) ([][]model.Gradient2D, error) {
 	xK, xL := kernelX.GetHalfKernelSize()
     yK, yL := kernelY.GetHalfKernelSize()
     if xK != yK && xL != yL {
-        return nil, errors.New("X- and Y-Kernel dimensions do not match")
+		return nil, errors.New("x- and y-Kernel dimensions do not match")
     } else {
         K, L = xK, xL
     }
@@ -102,10 +102,10 @@ func SobelOperator(grayImg *image.Gray) ([][]model.Gradient2D, error) {
 }
 
 func BuildGradientMagnitudeSlice(grad [][]model.Gradient2D) [][]uint8 {
-	mag2D := make([][]uint8, len(grad))
-	for i := 0; i < len(mag2D); i++ {
-		mag2D[i] = make([]uint8, len(grad[i]))
-	}
+	mag2D := utils.GeneratePixelSlice(len(grad[0]), len(grad))
+
+	var wg sync.WaitGroup
+
 	for v := 0; v < len(grad); v++ {
 		for u := 0; u < len(grad[v]); u++ {
 			mag2D[v][u] = grad[v][u].CalcMagnitude()
