@@ -2,8 +2,8 @@ package utils
 
 func BorderDetection(u, v, iOffset, jOffset, xMax, yMax int) (int, int) {
 	var (
-		newU int = u + iOffset
-		newV int = v + jOffset
+		newU = u + iOffset
+		newV = v + jOffset
 	)
 
 	if newU <= 0 {
@@ -15,11 +15,7 @@ func BorderDetection(u, v, iOffset, jOffset, xMax, yMax int) (int, int) {
 	}
 
 	if newV <= 0 {
-		if newU <= 0 {
-			return -newU, -newV
-		} else {
-			return newU, -newV
-		}
+		return newU, -newV
 	}
 
 	if newU >= xMax {
@@ -31,11 +27,7 @@ func BorderDetection(u, v, iOffset, jOffset, xMax, yMax int) (int, int) {
 	}
 
 	if newV >= yMax {
-		if newU >= xMax {
-			return xMax - iOffset, yMax - jOffset
-		} else {
-			return newU, yMax - jOffset
-		}
+		return newU, yMax - jOffset
 	}
 	return newU, newV
 }
