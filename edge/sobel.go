@@ -4,6 +4,7 @@ import (
 	"errors"
 	"image"
 	"math"
+	"sync"
 
 	"github.com/jhachmer/imgo/model"
 	"github.com/jhachmer/imgo/utils"
