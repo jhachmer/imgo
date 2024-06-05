@@ -84,12 +84,29 @@ func CreateMagnitudeGrayImageFromGradient(pixels [][]uint8) *image.Gray {
 func SliceToImage(pixels [][]uint8) *image.Gray {
 	var (
 		bounds = image.Rect(0, 0, len(pixels[0]), len(pixels))
-		canny  = image.NewGray(bounds)
+		img    = image.NewGray(bounds)
 	)
 	for posY := 0; posY < len(pixels); posY++ {
 		for posX := 0; posX < len(pixels[posY]); posX++ {
-			canny.SetGray(posX, posY, color.Gray{Y: uint8(pixels[posY][posX])})
+			img.SetGray(posX, posY, color.Gray{Y: uint8(pixels[posY][posX])})
 		}
 	}
-	return canny
+	return img
+}
+
+func ImageToSlice(img *image.Gray) [][]uint8 {
+	var (
+		M = img.Bounds().Max.X
+		N = img.Bounds().Max.Y
+	)
+
+	imgSlice := GeneratePixelSlice(M, N)
+
+	for v := 0; v < N; v++ {
+		for u := 0; u < M; u++ {
+			imgSlice[v][u] = img.GrayAt(u, v).Y
+		}
+	}
+
+	return imgSlice
 }
