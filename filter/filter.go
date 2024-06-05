@@ -9,7 +9,7 @@ import (
 	"github.com/jhachmer/imgo/utils"
 )
 
-// Apply2DFilter Applies given 2D-Filter to input (grayscale) image.
+// Apply2DFilterToGray applies given 2D-Filter to input (grayscale) image.
 // Returns grayscale image with applied filter
 func Apply2DFilterToGray(grayImg *image.Gray, k model.Kernel2D) *image.Gray {
 	// Scale by sum of filter coefficients
