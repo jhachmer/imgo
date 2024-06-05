@@ -9,3 +9,11 @@ func ClampPixel(value, upper, lower int) int {
 	}
 	return value
 }
+
+func GeneratePixelSlice(x, y int) [][]uint8 {
+	res := make([][]uint8, y)
+	for i := 0; i < y; i++ {
+		res[i] = make([]uint8, x)
+	}
+	return res
+}
