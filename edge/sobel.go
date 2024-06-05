@@ -12,24 +12,24 @@ import (
 
 func sobelKernelXAndY() (kernX, kernY *model.Kernel2D) {
 
-    sobelKernelX, err := model.NewKernel2D([][]int{
-	{-1, 0, 1},
-	{-2, 0, 2},
-	{-1, 0, 1},
-})
-    if err != nil {
-        panic(err)
-    }
+	sobelKernelX, err := model.NewKernel2D([][]int{
+		{-1, 0, 1},
+		{-2, 0, 2},
+		{-1, 0, 1},
+	})
+	if err != nil {
+		panic(err)
+	}
 
-    sobelKernelY, err := model.NewKernel2D([][]int{
-	{-1, -2, -1},
-	{0, 0, 0},
-	{1, 2, 1},
-})
-    
-    if err != nil {
-        panic("invalid kernel")
-    }
+	sobelKernelY, err := model.NewKernel2D([][]int{
+		{-1, -2, -1},
+		{0, 0, 0},
+		{1, 2, 1},
+	})
+
+	if err != nil {
+		panic("invalid kernel")
+	}
 	return sobelKernelX, sobelKernelY
 }
 
@@ -41,7 +41,7 @@ func SobelOperator(grayImg *image.Gray) ([][]model.Gradient2D, error) {
 		boundsMaxY = grayImg.Bounds().Max.Y
 		K          int
 		L          int
-    )
+	)
 
 	kernelX, kernelY := sobelKernelXAndY()
 
@@ -51,12 +51,12 @@ func SobelOperator(grayImg *image.Gray) ([][]model.Gradient2D, error) {
 	}
 
 	xK, xL := kernelX.GetHalfKernelSize()
-    yK, yL := kernelY.GetHalfKernelSize()
-    if xK != yK && xL != yL {
+	yK, yL := kernelY.GetHalfKernelSize()
+	if xK != yK && xL != yL {
 		return nil, errors.New("x- and y-Kernel dimensions do not match")
-    } else {
-        K, L = xK, xL
-    }
+	} else {
+		K, L = xK, xL
+	}
 
 	// Allocate 2D Slice for Gradient Values
 	grad2D := make([][]model.Gradient2D, boundsMaxY)
@@ -112,7 +112,7 @@ func BuildGradientMagnitudeSlice(grad [][]model.Gradient2D) [][]uint8 {
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
-			mag2D[v][u] = grad[v][u].CalcMagnitude()
+				mag2D[v][u] = grad[v][u].CalcMagnitude()
 			}()
 		}
 	}
