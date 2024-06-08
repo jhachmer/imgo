@@ -11,20 +11,15 @@ import (
 
 // Apply2DFilterToGray applies given 2D-Filter to input (grayscale) image.
 // Returns grayscale image with applied filter
-func Apply2DFilterToGray(grayImg *image.Gray, k model.Kernel2D) *image.Gray {
-	// Scale by sum of filter coefficients
-	s := 1.0 / float64(k.Size)
-
-	boundsMaxX := grayImg.Bounds().Max.X
-	boundsMaxY := grayImg.Bounds().Max.Y
-
-	newImage := image.NewGray(grayImg.Bounds())
-
-	K := k.XLen / 2
-	L := k.YLen / 2
+func Apply2DFilterToGray(grayImg *image.Gray, k *model.Kernel2D) *image.Gray {
 	var (
-		xPix int
-		yPix int
+		s          = 1.0 / float64(k.Size)
+		boundsMaxX = grayImg.Bounds().Max.X
+		boundsMaxY = grayImg.Bounds().Max.Y
+		newImage   = image.NewGray(grayImg.Bounds())
+		K, L       = k.GetHalfKernelSize()
+		xPix       int
+		yPix       int
 	)
 
 	for v := 0; v < boundsMaxY; v++ {
@@ -43,8 +38,9 @@ func Apply2DFilterToGray(grayImg *image.Gray, k model.Kernel2D) *image.Gray {
 					sum = sum + c*p
 				}
 			}
-			// Clamping if necessary
+			// Scale by sum of filter coefficients
 			q := int(math.Round(s * float64(sum)))
+			// Clamping if necessary
 			q = utils.ClampPixel(q, 255, 0)
 			newImage.SetGray(u, v, color.Gray{Y: uint8(q)})
 		}

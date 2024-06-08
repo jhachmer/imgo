@@ -1,63 +1,86 @@
 package transform
 
 import (
-	"fmt"
 	"math"
 	"slices"
+	"sync"
+
+	"github.com/jhachmer/imgo/utils"
 )
 
-func HoughTransformLines(pixel [][]uint8, m, n, aMIN int) [][]int {
+// HoughLines transforms binary image input (2D-slice of uint8's) to hough space
+func HoughLines(pixel [][]uint8, m, n int) [][]int {
 	M := len(pixel[0])
 	N := len(pixel)
-	var xR int = M / 2
-	var yR int = N / 2
-	var dPHI float64 = math.Pi / float64(m)
-	dR := math.Sqrt(float64((M*M)+(N*N))) / float64(n)
+	xR := M / 2
+	yR := N / 2
+	dPHI := math.Pi / float64(m)
+	dR := math.Hypot(float64(M), float64(N)) / float64(n)
 	j0 := n / 2
 
 	A := make([][]int, n)
-	for i := 0; i < len(A); i++ {
+	for i := range A {
 		A[i] = make([]int, m)
 	}
 
-	for u := 0; u < M-1; u++ {
-		for v := 0; v < N-1; v++ {
+	var wg sync.WaitGroup
+
+	sinCache := make([]float64, m)
+	cosCache := make([]float64, m)
+	for i := 0; i < m; i++ {
+		phi := dPHI * float64(i)
+		sinCache[i] = math.Sin(phi)
+		cosCache[i] = math.Cos(phi)
+	}
+
+	for v := 0; v < N; v++ {
+		for u := 0; u < M; u++ {
 			if pixel[v][u] > 0 {
-				x := u - xR
+				x := xR - u
 				y := v - yR
-				for i := 0; i < m; i++ {
-					phi := dPHI * float64(i)
-					r := float64(x)*math.Cos(phi) + float64(y)*math.Sin(phi)
-					j := j0 + int(math.Round(r/dR))
-					A[j][i] = A[j][i] + 1
-				}
+				wg.Add(1)
+				go func(x, y int) {
+					defer wg.Done()
+					for i := 0; i < m; i++ {
+						r := float64(x)*cosCache[i] + float64(y)*sinCache[i]
+						j := j0 + int(math.Round(r/dR))
+						if j >= 0 && j < n {
+							A[j][i]++
+						}
+					}
+				}(x, y)
 			}
 		}
 	}
-
+	wg.Wait()
 	return A
 }
 
-// ScaledAccumulator Accumulator gets scaled to uint8 range for image output
-func ScaledAccumulator(A [][]int) [][]uint8 {
-	var curMax int = 0
-	var N int = len(A)
-	var M int = len(A[0])
+// ScaleAccumulator scales accumulator to uint8 range for image output
+func ScaleAccumulator(A [][]int) [][]uint8 {
+	var curMax = 0
+	N := len(A)
+	M := len(A[0])
 
-	for j := 0; j < len(A); j++ {
-		subMax := slices.Max(A[j])
-		if subMax > curMax {
-			curMax = subMax
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+
+	go func() {
+		defer wg.Done()
+		for j := 0; j < len(A); j++ {
+			subMax := slices.Max(A[j])
+			if subMax > curMax {
+				curMax = subMax
+			}
 		}
-	}
+	}()
 
-	scaledA := make([][]uint8, N)
-	for i := 0; i < N-1; i++ {
-		scaledA[i] = make([]uint8, M)
-	}
-	fmt.Println(len(scaledA))
+	scaledA := utils.GeneratePixelSlice(M, N)
 
-	var factor float64 = 255.0 / float64(curMax)
+	wg.Wait()
+
+	factor := 255.0 / float64(curMax)
 
 	for v := 0; v < N-1; v++ {
 		for u := 0; u < M-1; u++ {
