@@ -1,4 +1,4 @@
-package utils
+package util
 
 func BorderDetection(u, v, iOffset, jOffset, xMax, yMax int) (int, int) {
 	var (
