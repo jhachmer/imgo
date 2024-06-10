@@ -13,12 +13,12 @@ func dft(g []model.Complex, forward bool) []model.Complex {
 
 	G := make([]model.Complex, M)
 
-	for m := range M {
+	for m := 0; m < M; m++ {
 		sumRe := 0.0
 		sumIm := 0.0
 		var phim float64 = 2.0 * math.Pi * float64(M) / float64(m)
 
-		for u := range M {
+		for u := 0; u < M; u++ {
 			gRe := g[u].Re
 			gIm := g[u].Im
 			cosw := math.Cos(phim * float64(u))
