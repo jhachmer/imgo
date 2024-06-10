@@ -7,7 +7,8 @@ import (
 	"github.com/jhachmer/imgo/util"
 )
 
-// DFT performs a 1D Discrete Fourier Transform on the input slice of complex numbers.
+// dft1D performs a 1D Discrete Fourier Transform on the input slice of complex numbers.
+// forward flag sets whether or not to use inverse DFT
 func dft1D(g []model.Complex, forward bool) []model.Complex {
 	M := len(g)
 	s := 1 / math.Sqrt(float64(M))
@@ -36,6 +37,9 @@ func dft1D(g []model.Complex, forward bool) []model.Complex {
 	return G
 }
 
+// DFT2D applies DFT to 2D-slice of complex numbers
+// real number image slices can be coverted to complex slices using GenerateComplexSlice in util package
+// forward flag sets whether or not to use inverse DFT
 func DFT2D(g [][]model.Complex, forward bool) [][]model.Complex {
 	rows := len(g)
 	cols := len(g[0])
@@ -55,6 +59,7 @@ func DFT2D(g [][]model.Complex, forward bool) [][]model.Complex {
 	return g
 }
 
+// GenerateComplexSlice calculates the magnitude of every complex number in given 2D-slice
 func DFTMagnitude(c [][]model.Complex) [][]float64 {
 	rows := len(c)
 	cols := len(c[0])
@@ -71,9 +76,11 @@ func DFTMagnitude(c [][]model.Complex) [][]float64 {
 	return magnitudes
 }
 
+// OutputTransformation adjusts numbers in given 2D-slice to uint8-range
+// logarithmic flags controls if linear or logarithmic transformation is used
 func OutputTransformation(magnitudes [][]float64, logarithmic bool) [][]uint8 {
 	cols, rows := len(magnitudes[0]), len(magnitudes)
-	// Find the maximum magnitude for normalization
+	var c float64
 	maxMagnitude := 0.0
 	for j := 0; j < rows; j++ {
 		for i := 0; i < cols; i++ {
@@ -83,9 +90,10 @@ func OutputTransformation(magnitudes [][]float64, logarithmic bool) [][]uint8 {
 		}
 	}
 
-	c := 255 / math.Log(1+math.Abs(maxMagnitude))
+	if logarithmic {
+		c = 255 / math.Log(1+math.Abs(maxMagnitude))
+	}
 
-	// Normalize to the range [0, 255]
 	normalized := make([][]uint8, rows)
 	for j := 0; j < rows; j++ {
 		normalized[j] = make([]uint8, cols)
@@ -107,6 +115,7 @@ func OutputTransformation(magnitudes [][]float64, logarithmic bool) [][]uint8 {
 	return normalized
 }
 
+// dftshift uses symmetry of DFT to allign low-frequency parts of signal (DC) to the center of the image
 func dftshift(matrix [][]uint8) [][]uint8 {
 	cols, rows := len(matrix[0]), len(matrix)
 	shifted := util.GeneratePixelSlice(cols, rows)
