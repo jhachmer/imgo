@@ -45,6 +45,7 @@ func DFT2D(g [][]model.Complex, forward bool) [][]model.Complex {
 
 	g = transpose(g)
 
+	for i := 0; i < cols; i++ {
 		g[i] = dft(g[i], forward)
 	}
 
