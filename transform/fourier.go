@@ -4,10 +4,11 @@ import (
 	"math"
 
 	"github.com/jhachmer/imgo/model"
+	"github.com/jhachmer/imgo/util"
 )
 
 // DFT performs a 1D Discrete Fourier Transform on the input slice of complex numbers.
-func dft(g []model.Complex, forward bool) []model.Complex {
+func dft1D(g []model.Complex, forward bool) []model.Complex {
 	M := len(g)
 	s := 1 / math.Sqrt(float64(M))
 
@@ -40,7 +41,7 @@ func DFT2D(g [][]model.Complex, forward bool) [][]model.Complex {
 	cols := len(g[0])
 
 	for i := 0; i < rows; i++ {
-		g[i] = dft(g[i], forward)
+		g[i] = dft1D(g[i], forward)
 	}
 
 	g = transpose(g)
