@@ -39,24 +39,18 @@ func DFT2D(g [][]model.Complex, forward bool) [][]model.Complex {
 	rows := len(g)
 	cols := len(g[0])
 
-	G := make([][]model.Complex, rows)
-	for i := range G {
-		G[i] = make([]model.Complex, cols)
-	}
-
 	for i := 0; i < rows; i++ {
-		G[i] = dft(g[i], forward)
+		g[i] = dft(g[i], forward)
 	}
 
-	GT := transpose(G)
+	g = transpose(g)
 
-	for i := 0; i < cols; i++ {
-		GT[i] = dft(GT[i], forward)
+		g[i] = dft(g[i], forward)
 	}
 
-	G = transpose(GT)
+	g = transpose(g)
 
-	return G
+	return g
 }
 
 func transpose(matrix [][]model.Complex) [][]model.Complex {
