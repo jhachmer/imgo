@@ -100,10 +100,11 @@ func CannyEdgeDetector(grad [][]model.Gradient2D, eMAG [][]uint8, tLOW, tHIGH in
 		}
 	}
 
-	for u := 1; u < M-2; u++ {
-		for v := 1; v < N-2; v++ {
-			if (eNMS[v][u] >= uint8(tHIGH)) && eBIN[v][u] == 0 {
-				traceAndTreshold(eNMS, eBIN, u, v, tLOW, M, N)
+	// Edge tracing with hysteresis thresholding
+	for v := 1; v < N-1; v++ {
+		for u := 1; u < M-1; u++ {
+			if eNMS[v][u] >= uint8(tHIGH) && eBIN[v][u] == 0 {
+				traceAndThreshold(eNMS, eBIN, u, v, tLOW, M, N)
 			}
 		}
 	}
