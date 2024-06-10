@@ -68,6 +68,11 @@ func DFTMagnitude(c [][]model.Complex) [][]float64 {
 		}
 	}
 
+	return magnitudes
+}
+
+func OutputTransformation(magnitudes [][]float64, logarithmic bool) [][]uint8 {
+	cols, rows := len(magnitudes[0]), len(magnitudes)
 	// Find the maximum magnitude for normalization
 	maxMagnitude := 0.0
 	for j := 0; j < rows; j++ {
@@ -78,14 +83,26 @@ func DFTMagnitude(c [][]model.Complex) [][]float64 {
 		}
 	}
 
+	c := 255 / math.Log(1+math.Abs(maxMagnitude))
+
 	// Normalize to the range [0, 255]
 	normalized := make([][]uint8, rows)
 	for j := 0; j < rows; j++ {
 		normalized[j] = make([]uint8, cols)
 		for i := 0; i < cols; i++ {
-			normalized[j][i] = uint8((magnitudes[j][i] / maxMagnitude) * 255)
+			if !logarithmic {
+				v := int(magnitudes[j][i] / maxMagnitude * 255)
+				v = util.ClampPixel(v, 255, 0)
+				normalized[j][i] = uint8(v)
+			} else {
+				v := int(c * math.Log(1+math.Abs(magnitudes[j][i])))
+				v = util.ClampPixel(v, 255, 0)
+				normalized[j][i] = uint8(v)
+			}
 		}
 	}
+
+	normalized = dftshift(normalized)
 
 	return normalized
 }
