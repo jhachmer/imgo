@@ -44,35 +44,18 @@ func DFT2D(g [][]model.Complex, forward bool) [][]model.Complex {
 		g[i] = dft1D(g[i], forward)
 	}
 
-	g = transpose(g)
+	g = util.TransposeComplexMatrix(g)
 
 	for i := 0; i < cols; i++ {
-		g[i] = dft(g[i], forward)
+		g[i] = dft1D(g[i], forward)
 	}
 
-	g = transpose(g)
+	g = util.TransposeComplexMatrix(g)
 
 	return g
 }
 
-func transpose(matrix [][]model.Complex) [][]model.Complex {
-	rows := len(matrix)
-	cols := len(matrix[0])
-
-	transposed := make([][]model.Complex, cols)
-	for i := range transposed {
-		transposed[i] = make([]model.Complex, rows)
-	}
-
-	for i := 0; i < rows; i++ {
-		for j := 0; j < cols; j++ {
-			transposed[j][i] = matrix[i][j]
-		}
-	}
-	return transposed
-}
-
-func DFTtoReal(c [][]model.Complex) [][]uint8 {
+func DFTMagnitude(c [][]model.Complex) [][]float64 {
 	rows := len(c)
 	cols := len(c[0])
 	magnitudes := make([][]float64, rows)
