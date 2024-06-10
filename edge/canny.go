@@ -62,7 +62,7 @@ func isLocalMax(eMAG [][]uint8, u, v, sAng, tLow int) bool {
 		ml = eMAG[v+1][u-1]
 		mr = eMAG[v-1][u+1]
 	}
-	return (ml < mc) && (mc < mr)
+	return (ml < mc) && (mc > mr)
 }
 
 func traceAndTreshold(eNMS, eBIN [][]uint8, u0, v0, tLow, M, N int) {
