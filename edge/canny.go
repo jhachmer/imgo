@@ -65,16 +65,17 @@ func isLocalMax(eMAG [][]uint8, u, v, sAng, tLow int) bool {
 	return (ml < mc) && (mc > mr)
 }
 
-func traceAndTreshold(eNMS, eBIN [][]uint8, u0, v0, tLow, M, N int) {
+// traceAndThreshold adds local maximum pixels to binary images and follows neighbours until they reach the lower threshold
+func traceAndThreshold(eNMS, eBIN [][]uint8, u0, v0, tLow, M, N int) {
 	eBIN[v0][u0] = 255
 	uL := max(u0-1, 0)
 	uR := min(u0+1, M-1)
 	vT := max(v0-1, 0)
 	vB := min(v0+1, N-1)
 	for u := uL; u <= uR; u++ {
-		for v := vT; v < vB; v++ {
-			if (eNMS[v][u] > uint8(tLow)) && eBIN[v][u] == 0 {
-				traceAndTreshold(eNMS, eBIN, u, v, tLow, M, N)
+		for v := vT; v <= vB; v++ {
+			if eNMS[v][u] > uint8(tLow) && eBIN[v][u] == 0 {
+				traceAndThreshold(eNMS, eBIN, u, v, tLow, M, N)
 			}
 		}
 	}
