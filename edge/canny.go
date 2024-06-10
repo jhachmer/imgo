@@ -4,6 +4,7 @@ import (
 	"math"
 
 	"github.com/jhachmer/imgo/model"
+	"github.com/jhachmer/imgo/util"
 )
 
 // getOrientationSector returns neighbouring pixel of current pixel in gradient direction
@@ -34,9 +35,14 @@ func getOrientationSector(dx, dy float64) int {
 	return sAng
 }
 
+// isLocalMax returns true if pixel at coordinates (u,v) is a local maximum
+// that is the greatest magnitude of the pixel along the gradient direction
 func isLocalMax(eMAG [][]uint8, u, v, sAng, tLow int) bool {
-	var ml, mr uint8
+	if u <= 0 || u >= len(eMAG[0])-1 || v <= 0 || v >= len(eMAG)-1 {
+		return false
+	}
 
+	var ml, mr uint8
 	mc := eMAG[v][u]
 	if int(mc) < tLow {
 		return false
@@ -55,7 +61,6 @@ func isLocalMax(eMAG [][]uint8, u, v, sAng, tLow int) bool {
 	case 3:
 		ml = eMAG[v+1][u-1]
 		mr = eMAG[v-1][u+1]
-
 	}
 	return (ml < mc) && (mc < mr)
 }
