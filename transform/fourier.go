@@ -106,3 +106,16 @@ func OutputTransformation(magnitudes [][]float64, logarithmic bool) [][]uint8 {
 
 	return normalized
 }
+
+func dftshift(matrix [][]uint8) [][]uint8 {
+	cols, rows := len(matrix[0]), len(matrix)
+	shifted := util.GeneratePixelSlice(cols, rows)
+	for j := 0; j < rows; j++ {
+		for i := 0; i < cols; i++ {
+			newI := (i + cols/2) % cols
+			newJ := (j + rows/2) % rows
+			shifted[newJ][newI] = matrix[j][i]
+		}
+	}
+	return shifted
+}
