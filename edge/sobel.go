@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"github.com/jhachmer/imgo/model"
-	"github.com/jhachmer/imgo/utils"
+	"github.com/jhachmer/imgo/util"
 )
 
 func sobelKernelXAndY() (kernX, kernY *model.Kernel2D) {
@@ -77,7 +77,7 @@ func SobelOperator(grayImg *image.Gray) ([][]model.Gradient2D, error) {
 			for j := -L; j <= L; j++ {
 				for i := -K; i <= K; i++ {
 					if u+i < 0 || v+j < 0 || u+i >= boundsMaxX || v+j >= boundsMaxY {
-						xPix, yPix = utils.BorderDetection(u, v, i, j, boundsMaxX, boundsMaxY)
+						xPix, yPix = util.BorderDetection(u, v, i, j, boundsMaxX, boundsMaxY)
 					} else {
 						xPix, yPix = u+i, v+j
 					}
@@ -103,7 +103,7 @@ func SobelOperator(grayImg *image.Gray) ([][]model.Gradient2D, error) {
 }
 
 func BuildGradientMagnitudeSlice(grad [][]model.Gradient2D) [][]uint8 {
-	mag2D := utils.GeneratePixelSlice(len(grad[0]), len(grad))
+	mag2D := util.GeneratePixelSlice(len(grad[0]), len(grad))
 
 	var wg sync.WaitGroup
 

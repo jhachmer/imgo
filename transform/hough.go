@@ -5,7 +5,7 @@ import (
 	"slices"
 	"sync"
 
-	"github.com/jhachmer/imgo/utils"
+	"github.com/jhachmer/imgo/util"
 )
 
 // HoughLines transforms binary image input (2D-slice of uint8's) to hough space
@@ -76,7 +76,7 @@ func ScaleAccumulator(A [][]int) [][]uint8 {
 		}
 	}()
 
-	scaledA := utils.GeneratePixelSlice(M, N)
+	scaledA := util.GeneratePixelSlice(M, N)
 
 	wg.Wait()
 

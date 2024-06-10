@@ -6,7 +6,7 @@ import (
 	"math"
 
 	"github.com/jhachmer/imgo/model"
-	"github.com/jhachmer/imgo/utils"
+	"github.com/jhachmer/imgo/util"
 )
 
 // Apply2DFilterToGray applies given 2D-Filter to input (grayscale) image.
@@ -28,7 +28,7 @@ func Apply2DFilterToGray(grayImg *image.Gray, k *model.Kernel2D) *image.Gray {
 			for j := -L; j <= L; j++ {
 				for i := -K; i <= K; i++ {
 					if u+i < 0 || v+j < 0 || u+i >= boundsMaxX || v+j >= boundsMaxY {
-						xPix, yPix = utils.BorderDetection(u, v, i, j, boundsMaxX, boundsMaxY)
+						xPix, yPix = util.BorderDetection(u, v, i, j, boundsMaxX, boundsMaxY)
 					} else {
 						xPix, yPix = u+i, v+j
 					}
@@ -41,7 +41,7 @@ func Apply2DFilterToGray(grayImg *image.Gray, k *model.Kernel2D) *image.Gray {
 			// Scale by sum of filter coefficients
 			q := int(math.Round(s * float64(sum)))
 			// Clamping if necessary
-			q = utils.ClampPixel(q, 255, 0)
+			q = util.ClampPixel(q, 255, 0)
 			newImage.SetGray(u, v, color.Gray{Y: uint8(q)})
 		}
 	}
