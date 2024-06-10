@@ -16,7 +16,7 @@ func dft(g []model.Complex, forward bool) []model.Complex {
 	for m := 0; m < M; m++ {
 		sumRe := 0.0
 		sumIm := 0.0
-		var phim float64 = 2.0 * math.Pi * float64(M) / float64(m)
+		var phim float64 = 2.0 * math.Pi * float64(m) / float64(M)
 
 		for u := 0; u < M; u++ {
 			gRe := g[u].Re
