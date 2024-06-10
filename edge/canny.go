@@ -81,26 +81,16 @@ func traceAndThreshold(eNMS, eBIN [][]uint8, u0, v0, tLow, M, N int) {
 	}
 }
 
+// CannyEdgeDetector detects edges using the Canny edge detection algorithm
 func CannyEdgeDetector(grad [][]model.Gradient2D, eMAG [][]uint8, tLOW, tHIGH int) [][]uint8 {
 	M := len(grad[0])
 	N := len(grad)
-	eNMS := make([][]uint8, N)
-	for i := 0; i < len(eNMS); i++ {
-		eNMS[i] = make([]uint8, M)
-	}
-	eBIN := make([][]uint8, N)
-	for i := 0; i < len(eBIN); i++ {
-		eBIN[i] = make([]uint8, M)
-	}
-	for u := 0; u < M-1; u++ {
-		for v := 0; v < N-1; v++ {
-			eNMS[v][u] = 0
-			eBIN[v][u] = 0
-		}
-	}
+	eNMS := util.GeneratePixelSlice(M, N)
+	eBIN := util.GeneratePixelSlice(M, N)
 
-	for u := 1; u < M-2; u++ {
-		for v := 1; v < N-2; v++ {
+	// Non-maximum suppression
+	for v := 1; v < N-1; v++ {
+		for u := 1; u < M-1; u++ {
 			dX := grad[v][u].X
 			dY := grad[v][u].Y
 			sO := getOrientationSector(dX, dY)
