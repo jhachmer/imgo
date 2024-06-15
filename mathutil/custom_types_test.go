@@ -9,7 +9,7 @@ func TestCalcMagnitude(t *testing.T) {
 	tests := []struct {
 		name string
 		grad Gradient2D
-		want uint8
+		want int
 	}{
 		{name: "First (1,1)", grad: Gradient2D{X: 1.0, Y: 1.0}, want: 2},
 		{name: "Second (10,10)", grad: Gradient2D{X: 10, Y: 10}, want: 15},
