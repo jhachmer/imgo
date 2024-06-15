@@ -2,17 +2,19 @@ package edge
 
 import (
 	"errors"
+	"github.com/jhachmer/imgo/border"
+	"github.com/jhachmer/imgo/ops"
 	"image"
 	"math"
 	"sync"
 
-	"github.com/jhachmer/imgo/model"
-	"github.com/jhachmer/imgo/util"
+	"github.com/jhachmer/imgo/kernel"
+	m "github.com/jhachmer/imgo/mathutil"
 )
 
-func sobelKernelXAndY() (kernX, kernY *model.Kernel2D) {
+func sobelKernelXAndY() (kernX, kernY *kernel.Kernel2D) {
 
-	sobelKernelX, err := model.NewKernel2D([][]int{
+	sobelKernelX, err := kernel.NewKernel2D([][]int{
 		{-1, 0, 1},
 		{-2, 0, 2},
 		{-1, 0, 1},
@@ -21,7 +23,7 @@ func sobelKernelXAndY() (kernX, kernY *model.Kernel2D) {
 		panic(err)
 	}
 
-	sobelKernelY, err := model.NewKernel2D([][]int{
+	sobelKernelY, err := kernel.NewKernel2D([][]int{
 		{-1, -2, -1},
 		{0, 0, 0},
 		{1, 2, 1},
@@ -35,7 +37,7 @@ func sobelKernelXAndY() (kernX, kernY *model.Kernel2D) {
 
 // SobelOperator Applies Sobel Kernel to given (grayscale) image
 // Returns 2D-Slice containing Gradient-(Vectors) for each pixel
-func SobelOperator(grayImg *image.Gray) ([][]model.Gradient2D, error) {
+func SobelOperator(grayImg *image.Gray) ([][]m.Gradient2D, error) {
 	var (
 		boundsMaxX = grayImg.Bounds().Max.X
 		boundsMaxY = grayImg.Bounds().Max.Y
@@ -59,9 +61,9 @@ func SobelOperator(grayImg *image.Gray) ([][]model.Gradient2D, error) {
 	}
 
 	// Allocate 2D Slice for Gradient Values
-	grad2D := make([][]model.Gradient2D, boundsMaxY)
+	grad2D := make([][]m.Gradient2D, boundsMaxY)
 	for i := 0; i < len(grad2D); i++ {
-		grad2D[i] = make([]model.Gradient2D, boundsMaxX)
+		grad2D[i] = make([]m.Gradient2D, boundsMaxX)
 	}
 	var (
 		sumGradX int
@@ -77,7 +79,7 @@ func SobelOperator(grayImg *image.Gray) ([][]model.Gradient2D, error) {
 			for j := -L; j <= L; j++ {
 				for i := -K; i <= K; i++ {
 					if u+i < 0 || v+j < 0 || u+i >= boundsMaxX || v+j >= boundsMaxY {
-						xPix, yPix = util.BorderDetection(u, v, i, j, boundsMaxX, boundsMaxY)
+						xPix, yPix = border.Detection(u, v, i, j, boundsMaxX, boundsMaxY)
 					} else {
 						xPix, yPix = u+i, v+j
 					}
@@ -102,8 +104,8 @@ func SobelOperator(grayImg *image.Gray) ([][]model.Gradient2D, error) {
 	return grad2D, nil
 }
 
-func BuildGradientMagnitudeSlice(grad [][]model.Gradient2D) [][]uint8 {
-	mag2D := util.GeneratePixelSlice(len(grad[0]), len(grad))
+func BuildGradientMagnitudeSlice(grad [][]m.Gradient2D) [][]uint8 {
+	mag2D := ops.GeneratePixelSlice(len(grad[0]), len(grad))
 
 	var wg sync.WaitGroup
 
