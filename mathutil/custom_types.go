@@ -1,4 +1,4 @@
-package model
+package mathutil
 
 import (
 	"math"
@@ -29,4 +29,8 @@ func NewComplex(re float64, im float64) *Complex {
 
 func (c Complex) Abs() float64 {
 	return math.Hypot(c.Im, c.Re)
+}
+
+func (c Complex) Phase() float64 {
+	return math.Atan2(c.Im, c.Re)
 }

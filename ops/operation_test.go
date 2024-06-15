@@ -1,14 +1,14 @@
-package util
+package ops
 
 import (
 	"reflect"
 	"testing"
 
-	"github.com/jhachmer/imgo/model"
+	m "github.com/jhachmer/imgo/mathutil"
 )
 
-func ComplexSlice() [][]model.Complex {
-	return [][]model.Complex{
+func ComplexSlice() [][]m.Complex {
+	return [][]m.Complex{
 		{
 			{Re: 1, Im: 0}, {Re: 2, Im: 0},
 		},
@@ -25,7 +25,7 @@ func TestGenerateComplexSlice(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want [][]model.Complex
+		want [][]m.Complex
 	}{
 		{
 			name: "2",

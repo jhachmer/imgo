@@ -1,4 +1,4 @@
-package util
+package border
 
 import "testing"
 
@@ -108,12 +108,12 @@ func TestBorderDetection(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, got1 := BorderDetection(tt.args.u, tt.args.v, tt.args.i, tt.args.j, tt.args.xMax, tt.args.yMax)
+			got, got1 := Detection(tt.args.u, tt.args.v, tt.args.i, tt.args.j, tt.args.xMax, tt.args.yMax)
 			if got != tt.want {
-				t.Errorf("BorderDetection() got = %v, want %v", got, tt.want)
+				t.Errorf("Detection() got = %v, want %v", got, tt.want)
 			}
 			if got1 != tt.want1 {
-				t.Errorf("BorderDetection() got1 = %v, want %v", got1, tt.want1)
+				t.Errorf("Detection() got1 = %v, want %v", got1, tt.want1)
 			}
 		})
 	}

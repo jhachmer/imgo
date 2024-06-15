@@ -1,6 +1,10 @@
-package util
+package border
 
-func BorderDetection(u, v, iOffset, jOffset, xMax, yMax int) (int, int) {
+// Detection returns tuple of updated pixel position based on the image bounds
+// (u,v) is initial position
+// (iOffset, jOffset) are the current position in applied filter kernel
+// (xMax, yMax) are the maximum pixel length in each direction
+func Detection(u, v, iOffset, jOffset, xMax, yMax int) (int, int) {
 	var (
 		newU = u + iOffset
 		newV = v + jOffset

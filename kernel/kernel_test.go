@@ -1,4 +1,4 @@
-package model
+package kernel
 
 import (
 	"reflect"
@@ -40,8 +40,22 @@ func TestNewKernel2D(t *testing.T) {
 	}
 }
 
+func TestNewKernel2DEdge(t *testing.T) {
+	want := Kernel2D{Values: [][]int{{0, 1, 0}, {1, -4, 1}, {0, 1, 0}}, Size: 0}
+	got, err := NewKernel2D([][]int{{0, 1, 0}, {1, -4, 1}, {0, 1, 0}})
+	if err != nil {
+		t.Fatalf("%v+", err)
+	}
+	if !reflect.DeepEqual(want.Values, got.Values) {
+		t.Errorf("expected %+v; got %+v", want.Values, got.Values)
+	}
+	if want.Size != got.Size {
+		t.Errorf("expected %d; got %d", want.Size, got.Size)
+	}
+}
+
 func TestNewKernel2DError(t *testing.T) {
-	_, err := NewKernel2D([][]int{{0, 0, 0}, {0, 0, 0}, {0, 0, 0}})
+	_, err := NewKernel2D([][]int{{0, 0}, {0, 0, 0}, {0, 0}})
 	if err == nil {
 		t.Error("want error for invalid input")
 	}
@@ -62,10 +76,7 @@ func TestCalcCoefficientSum1D(t *testing.T) {
 func TestCalcCoefficientSum2D(t *testing.T) {
 	k := Kernel2D{Values: [][]int{{1, 1, 1}, {1, 1, 1}, {1, 1, 1}}, Size: 9}
 	want := k.Size
-	err := k.CalcCoefficientSum()
-	if err != nil {
-		t.Fatal(err)
-	}
+	k.CalcCoefficientSum()
 	if want != k.Size {
 		t.Errorf("expected %d; got %d", want, k.Size)
 	}

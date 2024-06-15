@@ -1,4 +1,4 @@
-package model
+package kernel
 
 import (
 	"errors"
@@ -16,10 +16,7 @@ type Kernel2D struct {
 func NewKernel2D(values [][]int) (*Kernel2D, error) {
 	k := new(Kernel2D)
 	k.Values = values
-	err := k.CalcCoefficientSum()
-	if err != nil {
-		return nil, err
-	}
+	k.CalcCoefficientSum()
 	k.Width = len(values[0])
 	k.Height = len(values)
 	if k.Width != k.Height {
@@ -29,19 +26,16 @@ func NewKernel2D(values [][]int) (*Kernel2D, error) {
 	return k, nil
 }
 
-func (k *Kernel2D) CalcCoefficientSum() error {
+func (k *Kernel2D) CalcCoefficientSum() {
 	var sum int
 	for i := range k.Values {
 		for j := range k.Values[i] {
-			sum += mathutil.Abs(k.Values[i][j])
+			//sum += mathutil.Abs(k.Values[i][j])
+			sum += k.Values[i][j]
+
 		}
 	}
-	if sum == 0 {
-		return errors.New("sum of filter coefficients is zero")
-	}
 	k.Size = sum
-
-	return nil
 }
 
 func (k *Kernel2D) GetHalfKernelSize() (int, int) {

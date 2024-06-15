@@ -1,7 +1,7 @@
-package util
+package ops
 
 import (
-	"github.com/jhachmer/imgo/model"
+	m "github.com/jhachmer/imgo/mathutil"
 )
 
 func ClampPixel(value, upper, lower int) int {
@@ -22,27 +22,27 @@ func GeneratePixelSlice(x, y int) [][]uint8 {
 	return res
 }
 
-func GenerateComplexSlice(pixels [][]uint8) [][]model.Complex {
-	c := make([][]model.Complex, len(pixels))
+func GenerateComplexSlice(pixels [][]uint8) [][]m.Complex {
+	c := make([][]m.Complex, len(pixels))
 	for i := range c {
-		c[i] = make([]model.Complex, len(pixels[i]))
+		c[i] = make([]m.Complex, len(pixels[i]))
 	}
 	for j := range len(pixels) {
 		for i := range len(pixels[j]) {
-			c[j][i] = *model.NewComplex(float64(pixels[j][i]), 0)
+			c[j][i] = *m.NewComplex(float64(pixels[j][i]), 0)
 		}
 	}
 
 	return c
 }
 
-func TransposeComplexMatrix(matrix [][]model.Complex) [][]model.Complex {
+func TransposeComplexMatrix(matrix [][]m.Complex) [][]m.Complex {
 	rows := len(matrix)
 	cols := len(matrix[0])
 
-	transposed := make([][]model.Complex, cols)
+	transposed := make([][]m.Complex, cols)
 	for i := range transposed {
-		transposed[i] = make([]model.Complex, rows)
+		transposed[i] = make([]m.Complex, rows)
 	}
 
 	for i := 0; i < rows; i++ {

@@ -1,4 +1,4 @@
-package util
+package img
 
 import (
 	"image"
@@ -32,7 +32,7 @@ func TestImageToSlice(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := ImageToSlice(tt.args.img); !reflect.DeepEqual(got, tt.want) {
+			if got := ToSlice(tt.args.img); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("ImageToSlice() = %v, want %v", got, tt.want)
 			}
 		})

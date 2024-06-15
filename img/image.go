@@ -1,4 +1,4 @@
-package util
+package img
 
 import (
 	"fmt"
@@ -8,7 +8,13 @@ import (
 	"log"
 	"os"
 	"slices"
+
+	"github.com/jhachmer/imgo/ops"
 )
+
+type Outputer interface {
+	Output() [][]uint8
+}
 
 // ConvertToGrayScale Converts input to grayscale image
 func ConvertToGrayScale(img image.Image) *image.Gray {
@@ -81,8 +87,9 @@ func CreateMagnitudeGrayImageFromGradient(pixels [][]uint8) *image.Gray {
 
 // SliceToImage Converts a 2D-Slice to an image
 // can be saved to file system using decoder
-func SliceToImage(pixels [][]uint8) *image.Gray {
+func ToImage(output Outputer) *image.Gray {
 	var (
+		pixels = output.Output()
 		bounds = image.Rect(0, 0, len(pixels[0]), len(pixels))
 		img    = image.NewGray(bounds)
 	)
@@ -94,13 +101,13 @@ func SliceToImage(pixels [][]uint8) *image.Gray {
 	return img
 }
 
-func ImageToSlice(img *image.Gray) [][]uint8 {
+func ToSlice(img *image.Gray) [][]uint8 {
 	var (
 		M = img.Bounds().Max.X
 		N = img.Bounds().Max.Y
 	)
 
-	imgSlice := GeneratePixelSlice(M, N)
+	imgSlice := ops.GeneratePixelSlice(M, N)
 
 	for v := 0; v < N; v++ {
 		for u := 0; u < M; u++ {
