@@ -2,18 +2,65 @@ package transform
 
 import (
 	"math"
+	"sync"
 
-	"github.com/jhachmer/imgo/model"
-	"github.com/jhachmer/imgo/util"
+	"github.com/jhachmer/imgo/ops"
+
+	"github.com/jhachmer/imgo/mathutil"
 )
 
+type DFT struct {
+	Image     [][]mathutil.Complex
+	Magnitude DFTMagnitude
+	Phase     DFTPhase
+}
+
+func NewDFT(input [][]uint8) *DFT {
+	dft := &DFT{
+		Image: ops.GenerateComplexSlice(input),
+	}
+	dft.DFT2D(true)
+	dft.Magnitude = *NewDFTMagnitude(dft)
+	dft.Phase = *NewDFTPhase(dft)
+
+	return dft
+}
+
+type DFTMagnitude struct {
+	values [][]float64
+}
+
+func NewDFTMagnitude(dft *DFT) *DFTMagnitude {
+	return &DFTMagnitude{
+		values: dft.DFTMagnitude(),
+	}
+}
+
+func (dftM *DFTMagnitude) Output() [][]uint8 {
+	return outputFourier(dftM.values)
+}
+
+type DFTPhase struct {
+	values [][]float64
+}
+
+func NewDFTPhase(dft *DFT) *DFTPhase {
+	return &DFTPhase{
+		values: dft.DFTPhase(),
+	}
+}
+
+func (dftP *DFTPhase) Output() [][]uint8 {
+	return outputFourier(dftP.values)
+}
+
 // dft1D performs a 1D Discrete Fourier Transform on the input slice of complex numbers.
-// forward flag sets whether or not to use inverse DFT
-func dft1D(g []model.Complex, forward bool) []model.Complex {
+// forward flag sets whether to use inverse DFT
+func dft1D(g []mathutil.Complex, forward bool) []mathutil.Complex {
 	M := len(g)
 	s := 1 / math.Sqrt(float64(M))
 
-	G := make([]model.Complex, M)
+	G := make([]mathutil.Complex, M)
 
 	for m := 0; m < M; m++ {
 		sumRe := 0.0
@@ -31,94 +78,110 @@ func dft1D(g []model.Complex, forward bool) []model.Complex {
 			sumRe += gRe*cosw + gIm*sinw
 			sumIm += gIm*cosw - gRe*sinw
 		}
-		G[m] = *model.NewComplex(s*sumRe, s*sumIm)
+		G[m] = *mathutil.NewComplex(s*sumRe, s*sumIm)
 	}
 
 	return G
 }
 
 // DFT2D applies DFT to 2D-slice of complex numbers
-// real number image slices can be coverted to complex slices using GenerateComplexSlice in util package
-// forward flag sets whether or not to use inverse DFT
-func DFT2D(g [][]model.Complex, forward bool) [][]model.Complex {
-	rows := len(g)
-	cols := len(g[0])
+// real number image slices can be converted to complex slices using GenerateComplexSlice in util package
+// forward flag sets whether to use inverse DFT
+func (dft *DFT) DFT2D(forward bool) {
+	rows := len(dft.Image)
+	cols := len(dft.Image[0])
+
+	var wg sync.WaitGroup
 
 	for i := 0; i < rows; i++ {
-		g[i] = dft1D(g[i], forward)
-	}
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			dft.Image[i] = dft1D(dft.Image[i], forward)
+		}()
 
-	g = util.TransposeComplexMatrix(g)
+	}
+	wg.Wait()
+	dft.Image = ops.TransposeComplexMatrix(dft.Image)
 
 	for i := 0; i < cols; i++ {
-		g[i] = dft1D(g[i], forward)
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			dft.Image[i] = dft1D(dft.Image[i], forward)
+		}()
 	}
-
-	g = util.TransposeComplexMatrix(g)
-
-	return g
+	wg.Wait()
+	dft.Image = ops.TransposeComplexMatrix(dft.Image)
 }
 
-// GenerateComplexSlice calculates the magnitude of every complex number in given 2D-slice
-func DFTMagnitude(c [][]model.Complex) [][]float64 {
-	rows := len(c)
-	cols := len(c[0])
-	magnitudes := make([][]float64, rows)
+// DFTMagnitude calculates the magnitude of every complex number in DFT result
+func (dft *DFT) DFTMagnitude() [][]float64 {
+	rows := len(dft.Image)
+	cols := len(dft.Image[0])
+	magnitude := make([][]float64, rows)
 
-	// Compute magnitudes of the complex numbers
 	for j := 0; j < rows; j++ {
-		magnitudes[j] = make([]float64, cols)
+		magnitude[j] = make([]float64, cols)
 		for i := 0; i < cols; i++ {
-			magnitudes[j][i] = c[j][i].Abs()
+			magnitude[j][i] = dft.Image[j][i].Abs()
 		}
 	}
-
-	return magnitudes
+	return magnitude
 }
 
-// OutputTransformation adjusts numbers in given 2D-slice to uint8-range
-// logarithmic flags controls if linear or logarithmic transformation is used
-func OutputTransformation(magnitudes [][]float64, logarithmic bool) [][]uint8 {
-	cols, rows := len(magnitudes[0]), len(magnitudes)
+// DFTPhase calculates the phase of every complex number in DFT result
+func (dft *DFT) DFTPhase() [][]float64 {
+	rows := len(dft.Image)
+	cols := len(dft.Image[0])
+	phase := make([][]float64, rows)
+
+	for j := 0; j < rows; j++ {
+		phase[j] = make([]float64, cols)
+		for i := 0; i < cols; i++ {
+			phase[j][i] = dft.Image[j][i].Phase()
+		}
+	}
+	return phase
+}
+
+// outputFourier adjusts numbers in given 2D-slice to uint8-range
+// number range are in logarithmic scale
+// lower frequencies (DC-Values) are shifted to the middle
+func outputFourier(values [][]float64) [][]uint8 {
+	cols, rows := len(values[0]), len(values)
 	var c float64
 	maxMagnitude := 0.0
 	for j := 0; j < rows; j++ {
 		for i := 0; i < cols; i++ {
-			if magnitudes[j][i] > maxMagnitude {
-				maxMagnitude = magnitudes[j][i]
+			if values[j][i] > maxMagnitude {
+				maxMagnitude = values[j][i]
 			}
 		}
 	}
 
-	if logarithmic {
-		c = 255 / math.Log(1+math.Abs(maxMagnitude))
-	}
+	// logarithmic number range
+	c = 255 / math.Log(1+math.Abs(maxMagnitude))
 
 	normalized := make([][]uint8, rows)
 	for j := 0; j < rows; j++ {
 		normalized[j] = make([]uint8, cols)
 		for i := 0; i < cols; i++ {
-			if !logarithmic {
-				v := int(magnitudes[j][i] / maxMagnitude * 255)
-				v = util.ClampPixel(v, 255, 0)
-				normalized[j][i] = uint8(v)
-			} else {
-				v := int(c * math.Log(1+math.Abs(magnitudes[j][i])))
-				v = util.ClampPixel(v, 255, 0)
-				normalized[j][i] = uint8(v)
-			}
+
+			v := int(c * math.Log(1+math.Abs(values[j][i])))
+			v = ops.ClampPixel(v, 255, 0)
+			normalized[j][i] = uint8(v)
+
 		}
 	}
 
-	normalized = dftshift(normalized)
-
-	return normalized
+	return dftShift(normalized)
 }
 
-// dftshift uses symmetry of DFT to allign low-frequency parts of signal (DC) to the center of the image
-func dftshift(matrix [][]uint8) [][]uint8 {
+// dftShift uses symmetry of DFT to align low-frequency parts of signal (DC) to the center of the image
+func dftShift(matrix [][]uint8) [][]uint8 {
 	cols, rows := len(matrix[0]), len(matrix)
-	shifted := util.GeneratePixelSlice(cols, rows)
+	shifted := ops.GeneratePixelSlice(cols, rows)
 	for j := 0; j < rows; j++ {
 		for i := 0; i < cols; i++ {
 			newI := (i + cols/2) % cols
