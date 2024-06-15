@@ -4,6 +4,7 @@ import (
 	"math"
 	"sync"
 
+	"github.com/jhachmer/imgo/img"
 	"github.com/jhachmer/imgo/ops"
 
 	"github.com/jhachmer/imgo/mathutil"
@@ -37,7 +38,7 @@ func NewDFTMagnitude(dft *DFT) *DFTMagnitude {
 }
 
 func (dftM *DFTMagnitude) Output() [][]uint8 {
-	return outputFourier(dftM.values)
+	return makeOutput(dftM.values)()
 }
 
 type DFTPhase struct {
@@ -51,7 +52,7 @@ func NewDFTPhase(dft *DFT) *DFTPhase {
 }
 
 func (dftP *DFTPhase) Output() [][]uint8 {
-	return outputFourier(dftP.values)
+	return makeOutput(dftP.values)()
 }
 
 // dft1D performs a 1D Discrete Fourier Transform on the input slice of complex numbers.
@@ -148,7 +149,7 @@ func (dft *DFT) DFTPhase() [][]float64 {
 // outputFourier adjusts numbers in given 2D-slice to uint8-range
 // number range are in logarithmic scale
 // lower frequencies (DC-Values) are shifted to the middle
-func outputFourier(values [][]float64) [][]uint8 {
+func makeOutput(values [][]float64) img.OutputFunc {
 	cols, rows := len(values[0]), len(values)
 	var c float64
 	maxMagnitude := 0.0
@@ -175,7 +176,9 @@ func outputFourier(values [][]float64) [][]uint8 {
 		}
 	}
 
-	return dftShift(normalized)
+	return func() [][]uint8 {
+		return dftShift(normalized)
+	}
 }
 
 // dftShift uses symmetry of DFT to align low-frequency parts of signal (DC) to the center of the image
