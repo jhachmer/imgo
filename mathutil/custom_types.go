@@ -9,13 +9,13 @@ type Gradient2D struct {
 	Y float64
 }
 
-func (g Gradient2D) CalcMagnitude() uint8 {
-	v := uint32(math.Ceil(math.Sqrt((g.X * g.X) + (g.Y * g.Y))))
+func (g Gradient2D) CalcMagnitude() int {
+	v := math.Ceil(math.Sqrt((g.X * g.X) + (g.Y * g.Y)))
 
 	if v > 250 {
 		v = 255
 	}
-	return uint8(v)
+	return int(v)
 }
 
 type Complex struct {
