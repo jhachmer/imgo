@@ -116,9 +116,13 @@ func dft1D(g []mathutil.Complex, forward bool) []mathutil.Complex {
 // DFT2D applies DFT to 2D-slice of complex numbers
 // real number image slices can be converted to complex slices using GenerateComplexSlice in util package
 // forward flag sets whether to use inverse DFT
-func (dft *DFT) DFT2D(forward bool) {
-	rows := len(dft.Image)
-	cols := len(dft.Image[0])
+func (dft *DFT) DFT2D(forward bool) [][]mathutil.Complex {
+	rows := len(dft.Transformed)
+	cols := len(dft.Transformed[0])
+	ret := make([][]mathutil.Complex, rows)
+	for i := range ret {
+		ret[i] = make([]mathutil.Complex, cols)
+	}
 
 	var wg sync.WaitGroup
 
@@ -126,34 +130,34 @@ func (dft *DFT) DFT2D(forward bool) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			dft.Image[i] = dft1D(dft.Image[i], forward)
+			ret[i] = dft1D(dft.Transformed[i], forward)
 		}()
 
 	}
 	wg.Wait()
-	dft.Image = ops.TransposeComplexMatrix(dft.Image)
+	ret = ops.TransposeComplexMatrix(ret)
 
 	for i := 0; i < cols; i++ {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			dft.Image[i] = dft1D(dft.Image[i], forward)
+			ret[i] = dft1D(ret[i], forward)
 		}()
 	}
 	wg.Wait()
-	dft.Image = ops.TransposeComplexMatrix(dft.Image)
+	return ops.TransposeComplexMatrix(ret)
 }
 
 // DFTMagnitude calculates the magnitude of every complex number in DFT result
 func (dft *DFT) DFTMagnitude() [][]float64 {
-	rows := len(dft.Image)
-	cols := len(dft.Image[0])
+	rows := len(dft.Transformed)
+	cols := len(dft.Transformed[0])
 	magnitude := make([][]float64, rows)
 
 	for j := 0; j < rows; j++ {
 		magnitude[j] = make([]float64, cols)
 		for i := 0; i < cols; i++ {
-			magnitude[j][i] = dft.Image[j][i].Abs()
+			magnitude[j][i] = dft.Transformed[j][i].Abs()
 		}
 	}
 	return magnitude
@@ -161,14 +165,14 @@ func (dft *DFT) DFTMagnitude() [][]float64 {
 
 // DFTPhase calculates the phase of every complex number in DFT result
 func (dft *DFT) DFTPhase() [][]float64 {
-	rows := len(dft.Image)
-	cols := len(dft.Image[0])
+	rows := len(dft.Transformed)
+	cols := len(dft.Transformed[0])
 	phase := make([][]float64, rows)
 
 	for j := 0; j < rows; j++ {
 		phase[j] = make([]float64, cols)
 		for i := 0; i < cols; i++ {
-			phase[j][i] = dft.Image[j][i].Phase()
+			phase[j][i] = dft.Transformed[j][i].Phase()
 		}
 	}
 	return phase
@@ -220,7 +224,7 @@ func makeInverseOutput(values [][]float64) img.OutputFunc {
 // dftShift uses symmetry of DFT to align low-frequency parts of signal (DC) to the center of the image
 func dftShift(matrix [][]uint8) [][]uint8 {
 	cols, rows := len(matrix[0]), len(matrix)
-	shifted := ops.GeneratePixelSlice(cols, rows)
+	shifted := ops.GeneratePixelSlice[uint8](cols, rows)
 	for j := 0; j < rows; j++ {
 		for i := 0; i < cols; i++ {
 			newI := (i + cols/2) % cols
