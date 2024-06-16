@@ -59,3 +59,18 @@ func Apply2DFilterToGray(grayImg *image.Gray, k *kernel.Kernel2D, derivative boo
 	}
 	return newImage
 }
+
+func CreateGaussKernel1D(sigma float64) *kernel.Kernel1D {
+	center := int(3.0 * sigma)
+	h := make([]int, 2*center+1)
+	sigma2 := sigma * sigma
+	for i := range h {
+		r := float64(center - i)
+		h[i] = int(math.Exp((-0.5 * (r * r) / sigma2)) * 100)
+	}
+	k, err := kernel.NewKernel1D(h)
+	if err != nil {
+		panic(err)
+	}
+	return k
+}
