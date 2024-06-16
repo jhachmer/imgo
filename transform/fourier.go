@@ -11,18 +11,18 @@ import (
 )
 
 type DFT struct {
-	Image     [][]mathutil.Complex
-	Magnitude DFTMagnitude
-	Phase     DFTPhase
+	Transformed [][]mathutil.Complex
+	Magnitude   *DFTMagnitude
+	Phase       *DFTPhase
 }
 
 func NewDFT(input [][]uint8) *DFT {
 	dft := &DFT{
-		Image: ops.GenerateComplexSlice(input),
+		Transformed: ops.GenerateComplexSlice(input),
 	}
-	dft.DFT2D(true)
-	dft.Magnitude = *NewDFTMagnitude(dft)
-	dft.Phase = *NewDFTPhase(dft)
+	dft.Transformed = dft.DFT2D(true)
+	dft.Magnitude = NewDFTMagnitude(dft)
+	dft.Phase = NewDFTPhase(dft)
 
 	return dft
 }
