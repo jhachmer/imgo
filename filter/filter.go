@@ -1,12 +1,13 @@
 package filter
 
 import (
+	"github.com/jhachmer/imgo/border"
+	"github.com/jhachmer/imgo/ops"
 	"image"
 	"image/color"
 	"math"
 
-	"github.com/jhachmer/imgo/model"
-	"github.com/jhachmer/imgo/util"
+	"github.com/jhachmer/imgo/kernel"
 )
 
 // Apply2DFilterToGray applies given 2D-Filter to input (grayscale) image.
