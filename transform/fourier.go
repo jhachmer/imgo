@@ -66,7 +66,7 @@ func NewDFTMagnitude(dft *DFT) *DFTMagnitude {
 }
 
 func (dftM *DFTMagnitude) Output() [][]uint8 {
-	return makeOutput(dftM.values)()
+	return makeLogarithmicOutput(dftM.values)()
 }
 
 type DFTPhase struct {
@@ -80,7 +80,7 @@ func NewDFTPhase(dft *DFT) *DFTPhase {
 }
 
 func (dftP *DFTPhase) Output() [][]uint8 {
-	return makeOutput(dftP.values)()
+	return makeLogarithmicOutput(dftP.values)()
 }
 
 // dft1D performs a 1D Discrete Fourier Transform on the input slice of complex numbers.
@@ -177,17 +177,11 @@ func (dft *DFT) DFTPhase() [][]float64 {
 // outputFourier adjusts numbers in given 2D-slice to uint8-range
 // number range are in logarithmic scale
 // lower frequencies (DC-Values) are shifted to the middle
-func makeOutput(values [][]float64) img.OutputFunc {
+func makeLogarithmicOutput(values [][]float64) img.OutputFunc {
 	cols, rows := len(values[0]), len(values)
 	var c float64
-	maxMagnitude := 0.0
-	for j := 0; j < rows; j++ {
-		for i := 0; i < cols; i++ {
-			if values[j][i] > maxMagnitude {
-				maxMagnitude = values[j][i]
-			}
-		}
-	}
+
+	maxMagnitude := ops.FindMaxIn2DSlice(values)
 
 	// logarithmic number range
 	c = 255 / math.Log(1+math.Abs(maxMagnitude))
@@ -206,6 +200,23 @@ func makeOutput(values [][]float64) img.OutputFunc {
 
 	return func() [][]uint8 {
 		return dftShift(normalized)
+	}
+}
+
+func makeInverseOutput(values [][]float64) img.OutputFunc {
+	cols, rows := len(values[0]), len(values)
+	ret := ops.GeneratePixelSlice[uint8](cols, rows)
+	curMax := ops.FindMaxIn2DSlice(values)
+
+	factor := 255.0 / curMax
+	for i := 0; i < rows; i++ {
+		for j := 0; j < cols; j++ {
+			val := values[j][i] * factor
+			ret[j][i] = uint8(val)
+		}
+	}
+	return func() [][]uint8 {
+		return ret
 	}
 }
 
