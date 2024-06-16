@@ -15,10 +15,10 @@ func ClampPixel(value, upper, lower int) int {
 	return value
 }
 
-func GeneratePixelSlice(x, y int) [][]uint8 {
-	res := make([][]uint8, y)
+func GeneratePixelSlice[T Number](x, y int) [][]T {
+	res := make([][]T, y)
 	for i := 0; i < y; i++ {
-		res[i] = make([]uint8, x)
+		res[i] = make([]T, x)
 	}
 	return res
 }
