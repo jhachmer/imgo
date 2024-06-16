@@ -66,7 +66,7 @@ func CreateGaussKernel1D(sigma float64) *kernel.Kernel1D {
 	sigma2 := sigma * sigma
 	for i := range h {
 		r := float64(center - i)
-		h[i] = int(math.Exp((-0.5 * (r * r) / sigma2)) * 100)
+		h[i] = int(math.Exp(-0.5*(r*r)/sigma2) * 100)
 	}
 	k, err := kernel.NewKernel1D(h)
 	if err != nil {
