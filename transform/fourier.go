@@ -27,6 +27,34 @@ func NewDFT(input [][]uint8) *DFT {
 	return dft
 }
 
+type InverseDFT struct {
+	ImageReal [][]float64
+}
+
+func NewInverseDFT(dft *DFT) *InverseDFT {
+	cols, rows := len(dft.Transformed[0]), len(dft.Transformed)
+	var helper DFT = DFT{
+		Transformed: dft.DFT2D(false),
+	}
+
+	idft := ops.GeneratePixelSlice[float64](cols, rows)
+
+	for j := range helper.Transformed {
+		for i := range helper.Transformed[j] {
+			idft[j][i] = helper.Transformed[j][i].Re
+		}
+	}
+
+	inverse := &InverseDFT{
+		ImageReal: idft,
+	}
+	return inverse
+}
+
+func (iDFT *InverseDFT) Output() [][]uint8 {
+	return makeInverseOutput(iDFT.ImageReal)()
+}
+
 type DFTMagnitude struct {
 	values [][]float64
 }
