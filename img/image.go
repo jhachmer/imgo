@@ -1,13 +1,11 @@
 package img
 
 import (
-	"fmt"
 	"image"
 	"image/color"
 	"image/png"
 	"log"
 	"os"
-	"slices"
 
 	"github.com/jhachmer/imgo/ops"
 )
@@ -15,6 +13,10 @@ import (
 type Outputer interface {
 	Output() [][]uint8
 }
+
+type OutputFunc func() [][]uint8
+
+type ImageWrite func(string, *image.Image)
 
 // ConvertToGrayScale Converts input to grayscale image
 func ConvertToGrayScale(img image.Image) *image.Gray {
