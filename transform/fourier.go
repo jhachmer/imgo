@@ -94,7 +94,7 @@ func dft1D(g []mathutil.Complex, forward bool) []mathutil.Complex {
 	for m := 0; m < M; m++ {
 		sumRe := 0.0
 		sumIm := 0.0
-		var phim float64 = 2.0 * math.Pi * float64(m) / float64(M)
+		var phim = 2.0 * math.Pi * float64(m) / float64(M)
 
 		for u := 0; u < M; u++ {
 			gRe := g[u].Re
