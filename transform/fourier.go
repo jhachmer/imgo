@@ -190,14 +190,11 @@ func makeLogarithmicOutput(values [][]float64) img.OutputFunc {
 	for j := 0; j < rows; j++ {
 		normalized[j] = make([]uint8, cols)
 		for i := 0; i < cols; i++ {
-
 			v := int(c * math.Log(1+math.Abs(values[j][i])))
 			v = ops.ClampPixel(v, 255, 0)
 			normalized[j][i] = uint8(v)
-
 		}
 	}
-
 	return func() [][]uint8 {
 		return dftShift(normalized)
 	}
