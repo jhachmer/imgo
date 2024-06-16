@@ -2,6 +2,7 @@ package ops
 
 import (
 	m "github.com/jhachmer/imgo/mathutil"
+	"slices"
 )
 
 func ClampPixel(value, upper, lower int) int {
@@ -51,4 +52,19 @@ func TransposeComplexMatrix(matrix [][]m.Complex) [][]m.Complex {
 		}
 	}
 	return transposed
+}
+
+func FindMaxIn2DSlice[T Number](s [][]T) T {
+	var subMax, curMax T
+	for i := range s {
+		subMax = slices.Max(s[i])
+		if subMax > curMax {
+			curMax = subMax
+		}
+	}
+	return curMax
+}
+
+type Number interface {
+	~int | ~int8 | ~int16 | ~int32 | ~int64 | ~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~uintptr | ~float32 | ~float64
 }
