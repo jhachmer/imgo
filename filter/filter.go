@@ -12,9 +12,10 @@ import (
 
 // Apply2DFilterToGray applies given 2D-Filter to input (grayscale) image.
 // Returns grayscale image with applied filter
-func Apply2DFilterToGray(grayImg *image.Gray, k *model.Kernel2D) *image.Gray {
+func Apply2DFilterToGray(grayImg *image.Gray, k *kernel.Kernel2D, derivative bool) *image.Gray {
 	var (
-		s          = 1.0 / float64(k.Size)
+		s float64
+
 		boundsMaxX = grayImg.Bounds().Max.X
 		boundsMaxY = grayImg.Bounds().Max.Y
 		newImage   = image.NewGray(grayImg.Bounds())
@@ -22,6 +23,11 @@ func Apply2DFilterToGray(grayImg *image.Gray, k *model.Kernel2D) *image.Gray {
 		xPix       int
 		yPix       int
 	)
+	if k.Size == 0 {
+		s = 1
+	} else {
+		s = 1.0 / float64(k.Size)
+	}
 
 	for v := 0; v < boundsMaxY; v++ {
 		for u := 0; u < boundsMaxX; u++ {
@@ -29,7 +35,7 @@ func Apply2DFilterToGray(grayImg *image.Gray, k *model.Kernel2D) *image.Gray {
 			for j := -L; j <= L; j++ {
 				for i := -K; i <= K; i++ {
 					if u+i < 0 || v+j < 0 || u+i >= boundsMaxX || v+j >= boundsMaxY {
-						xPix, yPix = util.BorderDetection(u, v, i, j, boundsMaxX, boundsMaxY)
+						xPix, yPix = border.Detection(u, v, i, j, boundsMaxX, boundsMaxY)
 					} else {
 						xPix, yPix = u+i, v+j
 					}
@@ -41,6 +47,10 @@ func Apply2DFilterToGray(grayImg *image.Gray, k *model.Kernel2D) *image.Gray {
 			}
 			// Scale by sum of filter coefficients
 			q := int(math.Round(s * float64(sum)))
+			// adjust to number range if using derivative kernel
+			if derivative {
+				q += 127
+			}
 			// Clamping if necessary
 			q = ops.ClampPixel(q, 255, 0)
 
