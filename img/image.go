@@ -83,7 +83,7 @@ func ToSlice(img *image.Gray) [][]uint8 {
 		N = img.Bounds().Max.Y
 	)
 
-	imgSlice := ops.GeneratePixelSlice(M, N)
+	imgSlice := ops.GeneratePixelSlice[uint8](M, N)
 
 	for v := 0; v < N; v++ {
 		for u := 0; u < M; u++ {
