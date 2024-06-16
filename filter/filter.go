@@ -42,7 +42,8 @@ func Apply2DFilterToGray(grayImg *image.Gray, k *model.Kernel2D) *image.Gray {
 			// Scale by sum of filter coefficients
 			q := int(math.Round(s * float64(sum)))
 			// Clamping if necessary
-			q = util.ClampPixel(q, 255, 0)
+			q = ops.ClampPixel(q, 255, 0)
+
 			newImage.SetGray(u, v, color.Gray{Y: uint8(q)})
 		}
 	}
