@@ -8,6 +8,7 @@ import (
 	"os"
 )
 
+// PrintGray prints image to console
 func PrintGray(path string) {
 	catFile, err := os.Open(path)
 	if err != nil {
