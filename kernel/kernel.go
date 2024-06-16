@@ -30,7 +30,6 @@ func (k *Kernel2D) CalcCoefficientSum() {
 	var sum int
 	for i := range k.Values {
 		for j := range k.Values[i] {
-			//sum += mathutil.Abs(k.Values[i][j])
 			sum += k.Values[i][j]
 
 		}
