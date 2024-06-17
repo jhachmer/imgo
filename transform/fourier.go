@@ -1,17 +1,16 @@
 package transform
 
 import (
+	"github.com/jhachmer/imgo/types"
 	"math"
 	"sync"
 
 	"github.com/jhachmer/imgo/img"
 	"github.com/jhachmer/imgo/ops"
-
-	"github.com/jhachmer/imgo/mathutil"
 )
 
 type DFT struct {
-	Transformed [][]mathutil.Complex
+	Transformed [][]types.Complex
 	Magnitude   *DFTMagnitude
 	Phase       *DFTPhase
 }
@@ -85,11 +84,11 @@ func (dftP *DFTPhase) Output() [][]uint8 {
 
 // dft1D performs a 1D Discrete Fourier Transform on the input slice of complex numbers.
 // forward flag sets whether to use inverse DFT
-func dft1D(g []mathutil.Complex, forward bool) []mathutil.Complex {
+func dft1D(g []types.Complex, forward bool) []types.Complex {
 	M := len(g)
 	s := 1 / math.Sqrt(float64(M))
 
-	G := make([]mathutil.Complex, M)
+	G := make([]types.Complex, M)
 
 	for m := 0; m < M; m++ {
 		sumRe := 0.0
@@ -107,7 +106,7 @@ func dft1D(g []mathutil.Complex, forward bool) []mathutil.Complex {
 			sumRe += gRe*cosw + gIm*sinw
 			sumIm += gIm*cosw - gRe*sinw
 		}
-		G[m] = *mathutil.NewComplex(s*sumRe, s*sumIm)
+		G[m] = *types.NewComplex(s*sumRe, s*sumIm)
 	}
 
 	return G
@@ -116,12 +115,12 @@ func dft1D(g []mathutil.Complex, forward bool) []mathutil.Complex {
 // DFT2D applies DFT to 2D-slice of complex numbers
 // real number image slices can be converted to complex slices using GenerateComplexSlice in util package
 // forward flag sets whether to use inverse DFT
-func (dft *DFT) DFT2D(forward bool) [][]mathutil.Complex {
+func (dft *DFT) DFT2D(forward bool) [][]types.Complex {
 	rows := len(dft.Transformed)
 	cols := len(dft.Transformed[0])
-	ret := make([][]mathutil.Complex, rows)
+	ret := make([][]types.Complex, rows)
 	for i := range ret {
-		ret[i] = make([]mathutil.Complex, cols)
+		ret[i] = make([]types.Complex, cols)
 	}
 
 	var wg sync.WaitGroup

@@ -1,7 +1,7 @@
 package ops
 
 import (
-	m "github.com/jhachmer/imgo/mathutil"
+	m "github.com/jhachmer/imgo/types"
 	"slices"
 )
 

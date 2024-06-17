@@ -1,10 +1,9 @@
 package ops
 
 import (
+	m "github.com/jhachmer/imgo/types"
 	"reflect"
 	"testing"
-
-	m "github.com/jhachmer/imgo/mathutil"
 )
 
 func ComplexSlice() [][]m.Complex {
