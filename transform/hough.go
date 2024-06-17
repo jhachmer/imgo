@@ -5,8 +5,22 @@ import (
 	"slices"
 	"sync"
 
-	"github.com/jhachmer/imgo/util"
+	"github.com/jhachmer/imgo/ops"
 )
+
+type HoughTransform struct {
+	Accumulator [][]int
+}
+
+func NewHoughTransform(input [][]uint8, m, n int) *HoughTransform {
+	hough := &HoughTransform{}
+	hough.Accumulator = HoughLines(input, m, n)
+	return hough
+}
+
+func (h *HoughTransform) Output() [][]uint8 {
+	return ScaleAccumulator(h.Accumulator)
+}
 
 // HoughLines transforms binary image input (2D-slice of uint8's) to hough space
 func HoughLines(pixel [][]uint8, m, n int) [][]int {
@@ -17,14 +31,11 @@ func HoughLines(pixel [][]uint8, m, n int) [][]int {
 	dPHI := math.Pi / float64(m)
 	dR := math.Hypot(float64(M), float64(N)) / float64(n)
 	j0 := n / 2
-
 	A := make([][]int, n)
 	for i := range A {
 		A[i] = make([]int, m)
 	}
-
 	var wg sync.WaitGroup
-
 	sinCache := make([]float64, m)
 	cosCache := make([]float64, m)
 	for i := 0; i < m; i++ {
@@ -32,7 +43,6 @@ func HoughLines(pixel [][]uint8, m, n int) [][]int {
 		sinCache[i] = math.Sin(phi)
 		cosCache[i] = math.Cos(phi)
 	}
-
 	for v := 0; v < N; v++ {
 		for u := 0; u < M; u++ {
 			if pixel[v][u] > 0 {
@@ -61,11 +71,8 @@ func ScaleAccumulator(A [][]int) [][]uint8 {
 	var curMax = 0
 	N := len(A)
 	M := len(A[0])
-
 	var wg sync.WaitGroup
-
 	wg.Add(1)
-
 	go func() {
 		defer wg.Done()
 		for j := 0; j < len(A); j++ {
@@ -75,18 +82,13 @@ func ScaleAccumulator(A [][]int) [][]uint8 {
 			}
 		}
 	}()
-
-	scaledA := util.GeneratePixelSlice(M, N)
-
+	scaledA := ops.GeneratePixelSlice[uint8](M, N)
 	wg.Wait()
-
 	factor := 255.0 / float64(curMax)
-
 	for v := 0; v < N-1; v++ {
 		for u := 0; u < M-1; u++ {
 			scaledA[v][u] = uint8(float64(A[v][u]) * factor)
 		}
 	}
-
 	return scaledA
 }
