@@ -1,4 +1,4 @@
-package mathutil
+package types
 
 import (
 	"math"
@@ -10,9 +10,9 @@ type Gradient2D struct {
 }
 
 func (g Gradient2D) CalcMagnitude() int {
-	v := math.Ceil(math.Sqrt((g.X * g.X) + (g.Y * g.Y)))
+	v := math.Ceil(math.Hypot(g.X, g.Y))
 
-	if v > 250 {
+	if v > 255 {
 		v = 255
 	}
 	return int(v)
