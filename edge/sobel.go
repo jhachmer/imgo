@@ -4,24 +4,30 @@ import (
 	"fmt"
 	"github.com/jhachmer/imgo/border"
 	"github.com/jhachmer/imgo/kernel"
-	m "github.com/jhachmer/imgo/mathutil"
 	"github.com/jhachmer/imgo/ops"
-	"math"
+	m "github.com/jhachmer/imgo/types"
 	"slices"
 	"sync"
 )
 
 type Sobel struct {
-	Gradient [][]m.Gradient2D
+	Gradient   [][]m.Gradient2D
+	Magnitudes [][]uint8
 }
 
 func NewSobel(in [][]uint8) *Sobel {
-	return &Sobel{
+	s := &Sobel{
 		Gradient: sobelOperator(in),
 	}
+	s.Magnitudes = s.SobelMagnitudes()
+	return s
 }
 
 func (s *Sobel) Output() [][]uint8 {
+	return s.Magnitudes
+}
+
+func (s *Sobel) SobelMagnitudes() [][]uint8 {
 	rows := len(s.Gradient)
 	cols := len(s.Gradient[0])
 
@@ -29,20 +35,22 @@ func (s *Sobel) Output() [][]uint8 {
 	for i := 0; i < rows; i++ {
 		mag2D[i] = make([]int, cols)
 	}
+
 	var wg sync.WaitGroup
 	for v := 0; v < len(s.Gradient); v++ {
 		for u := 0; u < len(s.Gradient[v]); u++ {
 			wg.Add(1)
-			go func() {
+			go func(v, u int) {
 				defer wg.Done()
 				mag2D[v][u] = s.Gradient[v][u].CalcMagnitude()
-			}()
+			}(v, u)
 		}
 	}
 	wg.Wait()
+
 	res := ops.GeneratePixelSlice[uint8](cols, rows)
 	curMax := 0
-	for j := 0; j <= len(mag2D)-1; j++ {
+	for j := 0; j < len(mag2D); j++ { // Fixed loop condition
 		subMax := slices.Max(mag2D[j])
 		if subMax > curMax {
 			curMax = subMax
@@ -58,8 +66,8 @@ func (s *Sobel) Output() [][]uint8 {
 	return res
 }
 
-// SobelOperator Applies Sobel Kernel to given (grayscale) image
-// Returns 2D-Slice containing Gradient-(Vectors) for each pixel
+// SobelOperator applies Sobel Kernel to the given (grayscale) image
+// Returns a 2D slice containing Gradient vectors for each pixel
 func sobelOperator(input [][]uint8) [][]m.Gradient2D {
 	kernelX, err := kernel.NewKernel2D([][]int{
 		{-1, 0, 1},
@@ -80,16 +88,17 @@ func sobelOperator(input [][]uint8) [][]m.Gradient2D {
 	}
 
 	var (
-		cols = len(input[0]) - 1
-		rows = len(input) - 1
+		cols = len(input[0])
+		rows = len(input)
 		K, L = kernelX.GetHalfKernelSize()
 	)
 
 	// Allocate 2D Slice for Gradient Values
-	grad2D := make([][]m.Gradient2D, rows+1)
+	grad2D := make([][]m.Gradient2D, rows)
 	for i := 0; i < len(grad2D); i++ {
-		grad2D[i] = make([]m.Gradient2D, cols+1)
+		grad2D[i] = make([]m.Gradient2D, cols)
 	}
+
 	var (
 		sumGradX int
 		sumGradY int
@@ -97,8 +106,8 @@ func sobelOperator(input [][]uint8) [][]m.Gradient2D {
 		yPix     int
 	)
 
-	for v := 0; v < rows; v++ {
-		for u := 0; u < cols; u++ {
+	for v := 1; v < rows-2; v++ {
+		for u := 1; u < cols-2; u++ {
 			sumGradX = 0
 			sumGradY = 0
 			for j := -L; j <= L; j++ {
@@ -117,7 +126,7 @@ func sobelOperator(input [][]uint8) [][]m.Gradient2D {
 					sumGradY += int(sourcePix) * kernY
 				}
 			}
-			uFX, uFY := math.Abs(float64(sumGradX)), math.Abs(float64(sumGradY))
+			uFX, uFY := float64(sumGradX), float64(sumGradY)
 
 			grad2D[v][u].X = uFX
 			grad2D[v][u].Y = uFY
