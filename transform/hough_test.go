@@ -1,23 +1,22 @@
 package transform
 
 import (
-	"testing"
-
 	"github.com/jhachmer/imgo/img"
+	"testing"
 )
 
-func BenchTestDataFourier() *DFT {
+func BenchTestDataHough() *HoughTransform {
 	inputImg := img.ReadImageFromPath("../images/Lenna.png")
 
 	pixs := img.ToSlice(img.ConvertToGrayScale(inputImg))
 
-	return NewDFT(pixs)
+	return newHoughTransform(pixs, 500, 500)
 }
 
-func BenchmarkDFT2D(b *testing.B) {
+func BenchmarkHoughLines(b *testing.B) {
 	// run the Fib function b.N times
-	dft := BenchTestDataFourier()
+	hough := BenchTestDataHough()
 	for n := 0; n < b.N; n++ {
-		dft.DFT2D(true)
+		HoughLines(hough.Input, 500, 500)
 	}
 }
