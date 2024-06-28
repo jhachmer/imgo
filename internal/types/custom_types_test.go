@@ -1,14 +1,13 @@
 package types
 
 import (
-	"github.com/google/go-cmp/cmp"
 	"math"
 	"math/cmplx"
 	"reflect"
 	"testing"
-)
 
-const tolerance = .0001
+	"github.com/google/go-cmp/cmp"
+)
 
 func TestGradient2D_CalcMagnitude(t *testing.T) {
 	tests := []struct {

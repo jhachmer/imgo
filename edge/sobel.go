@@ -1,13 +1,13 @@
 package edge
 
 import (
-	"fmt"
-	"github.com/jhachmer/imgo/border"
-	"github.com/jhachmer/imgo/kernel"
-	"github.com/jhachmer/imgo/ops"
-	m "github.com/jhachmer/imgo/types"
 	"slices"
 	"sync"
+
+	"github.com/jhachmer/imgo/border"
+	"github.com/jhachmer/imgo/internal/ops"
+	m "github.com/jhachmer/imgo/internal/types"
+	"github.com/jhachmer/imgo/kernel"
 )
 
 type Sobel struct {
@@ -48,7 +48,7 @@ func (s *Sobel) SobelMagnitudes() [][]uint8 {
 	}
 	wg.Wait()
 
-	res := ops.GeneratePixelSlice[uint8](cols, rows)
+	res := ops.GenerateSlice[uint8](cols, rows)
 	curMax := 0
 	for j := 0; j < len(mag2D); j++ { // Fixed loop condition
 		subMax := slices.Max(mag2D[j])
@@ -56,8 +56,7 @@ func (s *Sobel) SobelMagnitudes() [][]uint8 {
 			curMax = subMax
 		}
 	}
-	var factor float64 = 255.0 / float64(curMax)
-	fmt.Printf("Scale Factor %v\n", factor)
+	var factor = 255.0 / float64(curMax)
 	for u := 0; u < cols; u++ {
 		for v := 0; v < rows; v++ {
 			res[v][u] = uint8(float64(mag2D[v][u]) * factor)
@@ -102,20 +101,15 @@ func sobelOperator(input [][]uint8) [][]m.Gradient2D {
 	var (
 		sumGradX int
 		sumGradY int
-		xPix     int
-		yPix     int
 	)
 
-	for v := 1; v < rows-2; v++ {
-		for u := 1; u < cols-2; u++ {
+	for v := 1; v <= rows-1; v++ {
+		for u := 1; u <= cols-1; u++ {
 			sumGradX = 0
 			sumGradY = 0
 			for j := -L; j <= L; j++ {
 				for i := -K; i <= K; i++ {
-					xPix, yPix = u+i, v+j
-					if u+i < 0 || v+j < 0 || u+i >= cols || v+j >= rows {
-						xPix, yPix = border.Detection(u, v, i, j, cols-1, rows-1)
-					}
+					xPix, yPix := border.Detection(u, v, i, j, cols-2, rows-2)
 					sourcePix := input[yPix][xPix]
 
 					// X-Kernel

@@ -1,6 +1,7 @@
 package img
 
 import (
+	"github.com/jhachmer/imgo/internal/ops"
 	"image"
 	"image/color"
 	"image/png"

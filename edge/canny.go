@@ -1,9 +1,10 @@
 package edge
 
 import (
-	"github.com/jhachmer/imgo/ops"
-	m "github.com/jhachmer/imgo/types"
 	"math"
+
+	"github.com/jhachmer/imgo/internal/ops"
+	m "github.com/jhachmer/imgo/internal/types"
 )
 
 type Canny struct {

@@ -2,8 +2,7 @@ package kernel
 
 import (
 	"errors"
-
-	"github.com/jhachmer/imgo/mathutil"
+	"github.com/jhachmer/imgo/internal/mathlib"
 )
 
 type Kernel2D struct {
@@ -69,7 +68,7 @@ func (k *Kernel1D) GetHalfKernelSize() int {
 func (k *Kernel1D) CalcCoefficientSum() error {
 	var sum int
 	for i := range k.Values {
-		sum += mathutil.Abs(k.Values[i])
+		sum += mathlib.Abs(k.Values[i])
 	}
 	if sum == 0 {
 		return errors.New("sum of filter coefficients is zero")

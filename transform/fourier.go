@@ -1,12 +1,14 @@
 package transform
 
 import (
-	"github.com/jhachmer/imgo/types"
+	"github.com/jhachmer/imgo/internal/types"
 	"math"
+	"math/cmplx"
 	"sync"
 
+	"github.com/jhachmer/imgo/internal/ops"
+
 	"github.com/jhachmer/imgo/img"
-	"github.com/jhachmer/imgo/ops"
 )
 
 type DFT struct {

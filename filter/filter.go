@@ -2,9 +2,8 @@ package filter
 
 import (
 	"github.com/jhachmer/imgo/border"
-	"github.com/jhachmer/imgo/ops"
-	"image"
-	"image/color"
+	"github.com/jhachmer/imgo/img"
+	"github.com/jhachmer/imgo/internal/ops"
 	"math"
 
 	"github.com/jhachmer/imgo/kernel"
