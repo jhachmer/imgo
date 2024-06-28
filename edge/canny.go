@@ -98,8 +98,8 @@ func traceAndThreshold(eNMS, eBIN [][]uint8, u0, v0, tLow, M, N int) {
 func CannyEdgeDetector(grad [][]m.Gradient2D, eMAG [][]uint8, tLOW, tHIGH int) [][]uint8 {
 	M := len(grad[0])
 	N := len(grad)
-	eNMS := ops.GeneratePixelSlice[uint8](M, N)
-	eBIN := ops.GeneratePixelSlice[uint8](M, N)
+	eNMS := ops.GenerateSlice[uint8](M, N)
+	eBIN := ops.GenerateSlice[uint8](M, N)
 
 	// Non-maximum suppression
 	for v := 1; v < N-2; v++ {

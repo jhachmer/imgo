@@ -21,10 +21,9 @@ func NewDFT(input [][]uint8) *DFT {
 	dft := &DFT{
 		Transformed: ops.GenerateComplexSlice(input),
 	}
-	dft.Transformed = dft.DFT2D(true)
+	dft.Transformed = DFT2D(dft.Transformed, true)
 	dft.Magnitude = NewDFTMagnitude(dft)
 	dft.Phase = NewDFTPhase(dft)
-
 	return dft
 }
 
@@ -35,10 +34,10 @@ type InverseDFT struct {
 func NewInverseDFT(dft *DFT) *InverseDFT {
 	cols, rows := len(dft.Transformed[0]), len(dft.Transformed)
 	var helper DFT = DFT{
-		Transformed: dft.DFT2D(false),
+		Transformed: DFT2D(dft.Transformed, false),
 	}
 
-	idft := ops.GeneratePixelSlice[float64](cols, rows)
+	idft := ops.GenerateSlice[float64](cols, rows)
 
 	for j := range helper.Transformed {
 		for i := range helper.Transformed[j] {
@@ -117,9 +116,9 @@ func dft1D(g []types.Complex, forward bool) []types.Complex {
 // DFT2D applies DFT to 2D-slice of complex numbers
 // real number image slices can be converted to complex slices using GenerateComplexSlice in util package
 // forward flag sets whether to use inverse DFT
-func (dft *DFT) DFT2D(forward bool) [][]types.Complex {
-	rows := len(dft.Transformed)
-	cols := len(dft.Transformed[0])
+func DFT2D(in [][]types.Complex, forward bool) [][]types.Complex {
+	rows := len(in)
+	cols := len(in[0])
 	ret := make([][]types.Complex, rows)
 	for i := range ret {
 		ret[i] = make([]types.Complex, cols)
@@ -131,12 +130,12 @@ func (dft *DFT) DFT2D(forward bool) [][]types.Complex {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			ret[i] = dft1D(dft.Transformed[i], forward)
+			ret[i] = dft1D(in[i], forward)
 		}()
 
 	}
 	wg.Wait()
-	ret = ops.TransposeComplexMatrix(ret)
+	ret = ops.TransposeMatrix(ret)
 
 	for i := 0; i < cols; i++ {
 		wg.Add(1)
@@ -146,7 +145,7 @@ func (dft *DFT) DFT2D(forward bool) [][]types.Complex {
 		}()
 	}
 	wg.Wait()
-	return ops.TransposeComplexMatrix(ret)
+	return ops.TransposeMatrix(ret)
 }
 
 // DFTMagnitude calculates the magnitude of every complex number in DFT result
@@ -188,7 +187,6 @@ func makeLogarithmicOutput(values [][]float64) img.OutputFunc {
 
 	maxMagnitude := ops.FindMaxIn2DSlice(values)
 
-	// logarithmic number range
 	c = 255 / math.Log(1+math.Abs(maxMagnitude))
 
 	normalized := make([][]uint8, rows)
@@ -196,8 +194,7 @@ func makeLogarithmicOutput(values [][]float64) img.OutputFunc {
 		normalized[j] = make([]uint8, cols)
 		for i := 0; i < cols; i++ {
 			v := int(c * math.Log(1+math.Abs(values[j][i])))
-			v = ops.ClampPixel(v, 255, 0)
-			normalized[j][i] = uint8(v)
+			normalized[j][i] = ops.ClampPixel(v)
 		}
 	}
 	return func() [][]uint8 {
@@ -207,7 +204,7 @@ func makeLogarithmicOutput(values [][]float64) img.OutputFunc {
 
 func makeInverseOutput(values [][]float64) img.OutputFunc {
 	cols, rows := len(values[0]), len(values)
-	ret := ops.GeneratePixelSlice[uint8](cols, rows)
+	ret := ops.GenerateSlice[uint8](cols, rows)
 	curMax := ops.FindMaxIn2DSlice(values)
 
 	factor := 255.0 / curMax
@@ -225,7 +222,7 @@ func makeInverseOutput(values [][]float64) img.OutputFunc {
 // dftShift uses symmetry of DFT to align low-frequency parts of signal (DC) to the center of the image
 func dftShift(matrix [][]uint8) [][]uint8 {
 	cols, rows := len(matrix[0]), len(matrix)
-	shifted := ops.GeneratePixelSlice[uint8](cols, rows)
+	shifted := ops.GenerateSlice[uint8](cols, rows)
 	for j := 0; j < rows; j++ {
 		for i := 0; i < cols; i++ {
 			newI := (i + cols/2) % cols
@@ -234,4 +231,17 @@ func dftShift(matrix [][]uint8) [][]uint8 {
 		}
 	}
 	return shifted
+}
+
+func inverseFromMagnitudeAndPhase(magnitude [][]float64, phase [][]float64) {
+	cols, rows := len(magnitude[0]), len(magnitude)
+	ifft := ops.GenerateSlice[types.Complex](cols, rows)
+
+	for v := 0; v < rows; v++ {
+		for u := 0; u < cols; u++ {
+			val := cmplx.Rect(magnitude[v][u], phase[v][u])
+			ifft[v][u].Re = real(val)
+			ifft[v][u].Im = imag(val)
+		}
+	}
 }

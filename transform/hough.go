@@ -81,7 +81,7 @@ func ScaleAccumulator(A [][]int) [][]uint8 {
 			}
 		}
 	}()
-	scaledA := ops.GeneratePixelSlice[uint8](M, N)
+	scaledA := ops.GenerateSlice[uint8](M, N)
 	wg.Wait()
 	factor := 255.0 / float64(curMax)
 	for v := 0; v < N-1; v++ {
