@@ -2,6 +2,7 @@ package types
 
 import (
 	"math"
+	"math/cmplx"
 )
 
 type Gradient2D struct {
@@ -11,7 +12,6 @@ type Gradient2D struct {
 
 func (g Gradient2D) CalcMagnitude() int {
 	v := math.Ceil(math.Hypot(g.X, g.Y))
-
 	if v > 255 {
 		v = 255
 	}
@@ -33,4 +33,13 @@ func (c Complex) Abs() float64 {
 
 func (c Complex) Phase() float64 {
 	return math.Atan2(c.Im, c.Re)
+}
+
+// ComplexRect returns the complex number x with polar coordinates r, θ as type Complex.
+func ComplexRect(mag, pha float64) *Complex {
+	val := cmplx.Rect(mag, pha)
+	return &Complex{
+		Re: real(val),
+		Im: imag(val),
+	}
 }

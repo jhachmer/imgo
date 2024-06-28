@@ -1,4 +1,4 @@
-package mathutil
+package mathlib
 
 func Abs(x int) int {
 	if x < 0 {
