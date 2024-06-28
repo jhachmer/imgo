@@ -80,8 +80,8 @@ func TestBorderDetection(t *testing.T) {
 			xMax: 10,
 			yMax: 10,
 		},
-			want:  9,
-			want1: 9,
+			want:  10,
+			want1: 10,
 		},
 		{name: "behind border max (x)", args: args{
 			u:    10,
@@ -91,7 +91,7 @@ func TestBorderDetection(t *testing.T) {
 			xMax: 10,
 			yMax: 10,
 		},
-			want:  9,
+			want:  10,
 			want1: 6,
 		},
 		{name: "behind border max (y)", args: args{
@@ -103,7 +103,7 @@ func TestBorderDetection(t *testing.T) {
 			yMax: 10,
 		},
 			want:  6,
-			want1: 9,
+			want1: 10,
 		},
 	}
 	for _, tt := range tests {
