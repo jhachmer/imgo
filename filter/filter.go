@@ -9,15 +9,28 @@ import (
 	"github.com/jhachmer/imgo/kernel"
 )
 
-// Apply2DFilterToGray applies given 2D-Filter to input (grayscale) image.
+type Filter struct {
+	Pixels [][]uint8
+}
+
+func NewFilter(img *img.ImageGray, k *kernel.Kernel2D, derivative bool) *Filter {
+	return &Filter{
+		Pixels: Apply2DFilter(img.Pixels, k, derivative),
+	}
+}
+
+func (f Filter) Output() [][]uint8 {
+	return f.Pixels
+}
+
+// Apply2DFilter applies given 2D-Filter to input (grayscale) image.
 // Returns grayscale image with applied filter
-func Apply2DFilterToGray(grayImg *image.Gray, k *kernel.Kernel2D, derivative bool) *image.Gray {
+func Apply2DFilter(in [][]uint8, k *kernel.Kernel2D, derivative bool) [][]uint8 {
 	var (
 		s float64
 
-		boundsMaxX = grayImg.Bounds().Max.X
-		boundsMaxY = grayImg.Bounds().Max.Y
-		newImage   = image.NewGray(grayImg.Bounds())
+		cols, rows = len(in[0]), len(in)
+		out        = ops.GenerateSlice[uint8](cols, rows)
 		K, L       = k.GetHalfKernelSize()
 		xPix       int
 		yPix       int
@@ -28,18 +41,13 @@ func Apply2DFilterToGray(grayImg *image.Gray, k *kernel.Kernel2D, derivative boo
 		s = 1.0 / float64(k.Size)
 	}
 
-	for v := 0; v < boundsMaxY; v++ {
-		for u := 0; u < boundsMaxX; u++ {
+	for v := 0; v <= rows-1; v++ {
+		for u := 0; u <= cols-1; u++ {
 			sum := 0
 			for j := -L; j <= L; j++ {
 				for i := -K; i <= K; i++ {
-					if u+i < 0 || v+j < 0 || u+i >= boundsMaxX || v+j >= boundsMaxY {
-						xPix, yPix = border.Detection(u, v, i, j, boundsMaxX, boundsMaxY)
-					} else {
-						xPix, yPix = u+i, v+j
-					}
-					p := int(grayImg.GrayAt(xPix, yPix).Y)
-
+					xPix, yPix = border.Detection(u, v, i, j, cols-1, rows-1)
+					p := int(in[yPix][xPix])
 					c := k.Values[j+L][i+K]
 					sum = sum + c*p
 				}
@@ -51,12 +59,13 @@ func Apply2DFilterToGray(grayImg *image.Gray, k *kernel.Kernel2D, derivative boo
 				q += 127
 			}
 			// Clamping if necessary
-			q = ops.ClampPixel(q, 255, 0)
-
-			newImage.SetGray(u, v, color.Gray{Y: uint8(q)})
+			out[v][u] = ops.ClampPixel(q)
+			//fmt.Printf("%d ", u)
+			//fmt.Printf("%d \n", v)
 		}
 	}
-	return newImage
+
+	return out
 }
 
 func CreateGaussKernel1D(sigma float64) *kernel.Kernel1D {
