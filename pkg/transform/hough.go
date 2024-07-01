@@ -1,10 +1,11 @@
 package transform
 
 import (
-	"github.com/jhachmer/imgo/internal/ops"
 	"math"
 	"slices"
 	"sync"
+
+	"github.com/jhachmer/imgo/internal/ops"
 )
 
 type HoughTransform struct {

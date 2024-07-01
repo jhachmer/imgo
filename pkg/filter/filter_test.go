@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/jhachmer/imgo/kernel"
+	"github.com/jhachmer/imgo/pkg/kernel"
 )
 
 func TestCreateGaussKernel1D(t *testing.T) {

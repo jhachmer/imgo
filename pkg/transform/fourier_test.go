@@ -3,7 +3,7 @@ package transform
 import (
 	"testing"
 
-	"github.com/jhachmer/imgo/img"
+	"github.com/jhachmer/imgo/pkg/img"
 )
 
 func BenchTestDataFourier() *DFT {
@@ -17,7 +17,8 @@ func BenchTestDataFourier() *DFT {
 func BenchmarkDFT2D(b *testing.B) {
 	// run the Fib function b.N times
 	dft := BenchTestDataFourier()
+	b.ResetTimer()
 	for n := 0; n < b.N; n++ {
-		dft.DFT2D(true)
+		DFT2D(dft.Transformed, true)
 	}
 }

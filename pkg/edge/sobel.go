@@ -4,10 +4,10 @@ import (
 	"slices"
 	"sync"
 
-	"github.com/jhachmer/imgo/border"
 	"github.com/jhachmer/imgo/internal/ops"
 	m "github.com/jhachmer/imgo/internal/types"
-	"github.com/jhachmer/imgo/kernel"
+	"github.com/jhachmer/imgo/pkg/border"
+	"github.com/jhachmer/imgo/pkg/kernel"
 )
 
 type Sobel struct {

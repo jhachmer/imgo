@@ -2,6 +2,7 @@ package kernel
 
 import (
 	"errors"
+
 	"github.com/jhachmer/imgo/internal/mathlib"
 )
 

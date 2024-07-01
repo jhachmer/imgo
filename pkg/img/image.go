@@ -1,15 +1,18 @@
 package img
 
 import (
-	"github.com/jhachmer/imgo/internal/ops"
 	"image"
 	"image/color"
 	"image/png"
 	"log"
 	"os"
 
-	"github.com/jhachmer/imgo/ops"
+	"github.com/jhachmer/imgo/internal/ops"
 )
+
+type ImageType interface {
+	ImageGray
+}
 
 type Outputer interface {
 	Output() [][]uint8
@@ -17,7 +20,19 @@ type Outputer interface {
 
 type OutputFunc func() [][]uint8
 
-type ImageWrite func(string, *image.Image)
+type ImageGray struct {
+	Pixels [][]uint8
+}
+
+func NewImageGray(path string) *ImageGray {
+	return &ImageGray{
+		Pixels: FileToSliceGray(path),
+	}
+}
+
+func (i *ImageGray) Output() [][]uint8 {
+	return i.Pixels
+}
 
 // ConvertToGrayScale Converts input to grayscale image
 func ConvertToGrayScale(img image.Image) *image.Gray {
@@ -38,17 +53,27 @@ func ConvertToGrayScale(img image.Image) *image.Gray {
 // Requires filepath from working directory
 // Returns image as pointer to Go-type image.Image
 func ReadImageFromPath(path string) image.Image {
-	sourceFile, err := os.Open(path)
+	file, err := os.Open(path)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer sourceFile.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			log.Fatal(err)
+		}
+	}()
 
-	sourceImg, _, err := image.Decode(sourceFile)
+	sourceImg, _, err := image.Decode(file)
 	if err != nil {
 		log.Fatal(err)
 	}
 	return sourceImg
+}
+
+func FileToSliceGray(path string) [][]uint8 {
+	img := ReadImageFromPath(path)
+	gray := ConvertToGrayScale(img)
+	return ToSlice(gray)
 }
 
 // ToPNG  writes Go image to filesystem
@@ -58,7 +83,10 @@ func ToPNG(outputFileName string, newImage *image.Gray) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer f.Close()
+	defer func() {
+		if err := f.Close(); err != nil {
+		}
+	}()
 	if err := png.Encode(f, newImage); err != nil {
 		log.Fatal(err)
 	}
@@ -74,7 +102,7 @@ func ToImage(output Outputer) *image.Gray {
 	)
 	for posY := 0; posY < len(pixels); posY++ {
 		for posX := 0; posX < len(pixels[posY]); posX++ {
-			img.SetGray(posX, posY, color.Gray{Y: uint8(pixels[posY][posX])})
+			img.SetGray(posX, posY, color.Gray{Y: pixels[posY][posX]})
 		}
 	}
 	return img
@@ -86,7 +114,7 @@ func ToSlice(img *image.Gray) [][]uint8 {
 		N = img.Bounds().Max.Y
 	)
 
-	imgSlice := ops.GeneratePixelSlice[uint8](M, N)
+	imgSlice := ops.GenerateSlice[uint8](M, N)
 
 	for v := 0; v < N; v++ {
 		for u := 0; u < M; u++ {
