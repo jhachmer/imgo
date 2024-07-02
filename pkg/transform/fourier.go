@@ -61,31 +61,31 @@ func (iDFT *InverseDFT) Output() [][]uint8 {
 }
 
 type DFTMagnitude struct {
-	values [][]float64
+	Values [][]float64
 }
 
 func NewDFTMagnitude(dft *DFT) *DFTMagnitude {
 	return &DFTMagnitude{
-		values: dft.DFTMagnitude(),
+		Values: dft.DFTMagnitude(),
 	}
 }
 
 func (dftM *DFTMagnitude) Output() [][]uint8 {
-	return makeLogarithmicOutput(dftM.values)()
+	return makeLogarithmicOutput(dftM.Values)()
 }
 
 type DFTPhase struct {
-	values [][]float64
+	Values [][]float64
 }
 
 func NewDFTPhase(dft *DFT) *DFTPhase {
 	return &DFTPhase{
-		values: dft.DFTPhase(),
+		Values: dft.DFTPhase(),
 	}
 }
 
 func (dftP *DFTPhase) Output() [][]uint8 {
-	return makeLogarithmicOutput(dftP.values)()
+	return makeLogarithmicOutput(dftP.Values)()
 }
 
 // dft1D performs a 1D Discrete Fourier Transform on the input slice of complex numbers.
