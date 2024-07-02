@@ -2,7 +2,6 @@ package transform
 
 import (
 	"math"
-	"math/cmplx"
 	"sync"
 
 	"github.com/jhachmer/imgo/internal/types"
@@ -34,7 +33,7 @@ type InverseDFT struct {
 
 func NewInverseDFT(dft *DFT) *InverseDFT {
 	cols, rows := len(dft.Transformed[0]), len(dft.Transformed)
-	var helper DFT = DFT{
+	var helper = DFT{
 		Transformed: DFT2D(dft.Transformed, false),
 	}
 
@@ -179,7 +178,7 @@ func (dft *DFT) DFTPhase() [][]float64 {
 	return phase
 }
 
-// outputFourier adjusts numbers in given 2D-slice to uint8-range
+// makeLogarithmicOutput adjusts numbers in given 2D-slice to uint8-range
 // number range are in logarithmic scale
 // lower frequencies (DC-Values) are shifted to the middle
 func makeLogarithmicOutput(values [][]float64) img.OutputFunc {
@@ -211,8 +210,8 @@ func makeInverseOutput(values [][]float64) img.OutputFunc {
 	factor := 255.0 / curMax
 	for i := 0; i < rows; i++ {
 		for j := 0; j < cols; j++ {
-			val := values[j][i] * factor
-			ret[j][i] = uint8(val)
+			val := values[i][j] * factor
+			ret[i][j] = uint8(val)
 		}
 	}
 	return func() [][]uint8 {
@@ -221,9 +220,9 @@ func makeInverseOutput(values [][]float64) img.OutputFunc {
 }
 
 // dftShift uses symmetry of DFT to align low-frequency parts of signal (DC) to the center of the image
-func dftShift(matrix [][]uint8) [][]uint8 {
+func dftShift[T any](matrix [][]T) [][]T {
 	cols, rows := len(matrix[0]), len(matrix)
-	shifted := ops.GenerateSlice[uint8](cols, rows)
+	shifted := ops.GenerateSlice[T](cols, rows)
 	for j := 0; j < rows; j++ {
 		for i := 0; i < cols; i++ {
 			newI := (i + cols/2) % cols
@@ -234,15 +233,25 @@ func dftShift(matrix [][]uint8) [][]uint8 {
 	return shifted
 }
 
-func inverseFromMagnitudeAndPhase(magnitude [][]float64, phase [][]float64) {
-	cols, rows := len(magnitude[0]), len(magnitude)
-	ifft := ops.GenerateSlice[types.Complex](cols, rows)
+// ApplyLowPassFilter applies a low-pass filter to the DFT result.
+// The cutoff frequency is specified as a fraction of the maximum frequency.
+func (dft *DFT) ApplyLowPassFilter(cutoff float64) {
+	rows := len(dft.Transformed)
+	cols := len(dft.Transformed[0])
+	cutoffX := int(cutoff * float64(cols) / 2)
+	cutoffY := int(cutoff * float64(rows) / 2)
 
-	for v := 0; v < rows; v++ {
-		for u := 0; u < cols; u++ {
-			val := cmplx.Rect(magnitude[v][u], phase[v][u])
-			ifft[v][u].Re = real(val)
-			ifft[v][u].Im = imag(val)
+	dft.Transformed = dftShift(dft.Transformed)
+
+	for j := 0; j < rows; j++ {
+		for i := 0; i < cols; i++ {
+			// Determine distance from center
+			distance := math.Sqrt(math.Pow(float64(i-cols/2), 2) + math.Pow(float64(j-rows/2), 2))
+			if distance > float64(cutoffX) || distance > float64(cutoffY) {
+				dft.Transformed[j][i] = *types.NewComplex(0, 0)
+			}
 		}
 	}
+
+	dft.Transformed = dftShift(dft.Transformed)
 }
