@@ -27,6 +27,11 @@ func NewDFT(input [][]uint8) *DFT {
 	return dft
 }
 
+func (dft *DFT) update() {
+	dft.Magnitude.Values = dft.DFTMagnitude()
+	dft.Phase.Values = dft.DFTPhase()
+}
+
 type InverseDFT struct {
 	ImageReal [][]float64
 }
