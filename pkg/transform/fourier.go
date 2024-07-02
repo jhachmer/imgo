@@ -210,13 +210,14 @@ func makeLogarithmicOutput(values [][]float64) img.OutputFunc {
 func makeInverseOutput(values [][]float64) img.OutputFunc {
 	cols, rows := len(values[0]), len(values)
 	ret := ops.GenerateSlice[uint8](cols, rows)
-	curMax := ops.FindMaxIn2DSlice(values)
+	// curMax := ops.FindMaxIn2DSlice(values)
 
-	factor := 255.0 / curMax
+	//factor := 255.0 / curMax
 	for i := 0; i < rows; i++ {
 		for j := 0; j < cols; j++ {
-			val := values[i][j] * factor
-			ret[i][j] = uint8(val)
+			// val := values[i][j] * factor
+			val := values[i][j]
+			ret[i][j] = ops.ClampPixel(val)
 		}
 	}
 	return func() [][]uint8 {
@@ -241,22 +242,36 @@ func dftShift[T any](matrix [][]T) [][]T {
 // ApplyLowPassFilter applies a low-pass filter to the DFT result.
 // The cutoff frequency is specified as a fraction of the maximum frequency.
 func (dft *DFT) ApplyLowPassFilter(cutoff float64) {
+	applyPassFilter(dft, cutoff, false)
+}
+
+// ApplyHighPassFilter applies a high-pass filter on the DFT of the image
+func (dft *DFT) ApplyHighPassFilter(cutoff float64) {
+	applyPassFilter(dft, cutoff, true)
+}
+
+func applyPassFilter(dft *DFT, cutoff float64, high bool) {
 	rows := len(dft.Transformed)
 	cols := len(dft.Transformed[0])
-	cutoffX := int(cutoff * float64(cols) / 2)
-	cutoffY := int(cutoff * float64(rows) / 2)
+	cutoff = cutoff * float64(rows) // Adjust cutoff to the size of the DFT
 
 	dft.Transformed = dftShift(dft.Transformed)
 
 	for j := 0; j < rows; j++ {
 		for i := 0; i < cols; i++ {
-			// Determine distance from center
-			distance := math.Sqrt(math.Pow(float64(i-cols/2), 2) + math.Pow(float64(j-rows/2), 2))
-			if distance > float64(cutoffX) || distance > float64(cutoffY) {
-				dft.Transformed[j][i] = *types.NewComplex(0, 0)
+			distance := math.Sqrt(math.Pow(float64(j-rows/2), 2) + math.Pow(float64(i-cols/2), 2))
+			if high {
+				if distance < cutoff {
+					dft.Transformed[j][i] = types.Complex{Re: 0, Im: 0}
+				}
+			} else {
+				if distance > cutoff {
+					dft.Transformed[j][i] = types.Complex{Re: 0, Im: 0}
+				}
 			}
+
 		}
 	}
-
 	dft.Transformed = dftShift(dft.Transformed)
+	dft.update()
 }
