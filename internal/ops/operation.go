@@ -1,8 +1,9 @@
 package ops
 
 import (
-	m "github.com/jhachmer/imgo/internal/types"
 	"slices"
+
+	m "github.com/jhachmer/imgo/internal/types"
 )
 
 func ClampPixel[T Number](value T) uint8 {
