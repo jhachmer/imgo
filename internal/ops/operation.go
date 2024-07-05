@@ -3,10 +3,11 @@ package ops
 import (
 	"slices"
 
-	m "github.com/jhachmer/imgo/internal/types"
+	"github.com/jhachmer/imgo/internal/mathlib"
+	"github.com/jhachmer/imgo/internal/types"
 )
 
-func ClampPixel[T Number](value T) uint8 {
+func ClampPixel[T mathlib.Number](value T) uint8 {
 	var result uint8
 	if value < 0 {
 		result = 0
@@ -26,14 +27,14 @@ func GenerateSlice[T any](x, y int) [][]T {
 	return res
 }
 
-func GenerateComplexSlice(pixels [][]uint8) [][]m.Complex {
-	c := make([][]m.Complex, len(pixels))
+func GenerateComplexSlice(pixels [][]uint8) [][]types.Complex {
+	c := make([][]types.Complex, len(pixels))
 	for i := range c {
-		c[i] = make([]m.Complex, len(pixels[i]))
+		c[i] = make([]types.Complex, len(pixels[i]))
 	}
 	for j := range len(pixels) {
 		for i := range len(pixels[j]) {
-			c[j][i] = *m.NewComplex(float64(pixels[j][i]), 0)
+			c[j][i] = *types.NewComplex(float64(pixels[j][i]), 0)
 		}
 	}
 
@@ -57,7 +58,7 @@ func TransposeMatrix[T any](matrix [][]T) [][]T {
 	return transposed
 }
 
-func FindMaxIn2DSlice[T Number](s [][]T) T {
+func FindMaxIn2DSlice[T mathlib.Number](s [][]T) T {
 	var subMax, curMax T
 	for i := range s {
 		subMax = slices.Max(s[i])
@@ -94,8 +95,4 @@ func Filter[TValue any](values []TValue, fn func(TValue) bool) []TValue {
 		}
 	}
 	return result
-}
-
-type Number interface {
-	~int | ~int16 | ~int32 | ~int64 | ~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~float32 | ~float64
 }

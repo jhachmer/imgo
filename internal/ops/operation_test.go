@@ -1,9 +1,11 @@
 package ops
 
 import (
-	m "github.com/jhachmer/imgo/internal/types"
 	"reflect"
 	"testing"
+
+	"github.com/jhachmer/imgo/internal/mathlib"
+	m "github.com/jhachmer/imgo/internal/types"
 )
 
 func ComplexSlice() [][]m.Complex {
@@ -42,10 +44,10 @@ func TestGenerateComplexSlice(t *testing.T) {
 }
 
 func TestFindMaxIn2DSliceInt(t *testing.T) {
-	type args[T Number] struct {
+	type args[T mathlib.Number] struct {
 		s [][]T
 	}
-	type testCase[T Number] struct {
+	type testCase[T mathlib.Number] struct {
 		name string
 		args args[T]
 		want T
@@ -64,10 +66,10 @@ func TestFindMaxIn2DSliceInt(t *testing.T) {
 }
 
 func TestFindMaxIn2DSliceFloat(t *testing.T) {
-	type args[T Number] struct {
+	type args[T mathlib.Number] struct {
 		s [][]T
 	}
-	type testCase[T Number] struct {
+	type testCase[T mathlib.Number] struct {
 		name string
 		args args[T]
 		want T
