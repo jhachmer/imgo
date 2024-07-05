@@ -121,7 +121,7 @@ func TestKernel2D_GetHalfKernelSize(t *testing.T) {
 			},
 			want:  3,
 			want1: 3,
-		}, // TODO: Add test cases.
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
