@@ -31,7 +31,6 @@ func (k *Kernel2D) CalcCoefficientSum() {
 	for i := range k.Values {
 		for j := range k.Values[i] {
 			sum += k.Values[i][j]
-
 		}
 	}
 	k.Size = sum
@@ -63,7 +62,6 @@ func NewKernel1D(values []int) (*Kernel1D, error) {
 
 func (k *Kernel1D) GetHalfKernelSize() int {
 	return k.Len / 2
-
 }
 
 func (k *Kernel1D) CalcCoefficientSum() error {
@@ -74,8 +72,6 @@ func (k *Kernel1D) CalcCoefficientSum() error {
 	if sum == 0 {
 		return errors.New("sum of filter coefficients is zero")
 	}
-
 	k.Size = sum
-
 	return nil
 }
