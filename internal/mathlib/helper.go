@@ -1,26 +1,53 @@
 package mathlib
 
-func Abs(x int) int {
+type Number interface {
+	NumberUnsigned
+	NumberSigned
+}
+
+type NumberUnsigned interface {
+	~int | ~int16 | ~int32 | ~int64 | ~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~float32 | ~float64
+}
+
+type NumberSigned interface {
+	~int | ~int16 | ~int32 | ~int64 | ~float32 | ~float64
+}
+
+func Abs[T NumberSigned](x T) T {
 	if x < 0 {
 		return -x
 	}
 	return x
 }
 
-func Max[T Number](a, b T) T {
-	if a > b {
-		return a
+func Max[T Number](a []T) T {
+	var m T
+	for i := range a {
+		if a[i] > m {
+			m = a[i]
+		}
 	}
-	return b
+	return m
 }
 
-func Min[T Number](a, b T) T {
-	if a < b {
-		return a
+func Min[T Number](a []T) T {
+	var m T
+	for i := range a {
+		if a[i] < m {
+			m = a[i]
+		}
 	}
-	return b
+	return m
 }
 
-type Number interface {
-	~int | ~int8 | ~int16 | ~int32 | ~int64 | ~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~uintptr | ~float32 | ~float64
+func Sum[T NumberSigned](values []T, abs bool) T {
+	var sum T
+	for _, v := range values {
+		if abs {
+			sum += Abs(v)
+		} else {
+			sum += v
+		}
+	}
+	return sum
 }
