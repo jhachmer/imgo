@@ -207,20 +207,21 @@ func makeLogarithmicOutput(values [][]float64) img.OutputFunc {
 	}
 }
 
+// makeInverseOutput returns displayable 2D-slice
 func makeInverseOutput(values [][]float64) img.OutputFunc {
-	cols, rows := len(values[0]), len(values)
-	ret := ops.GenerateSlice[uint8](cols, rows)
-	// curMax := ops.FindMaxIn2DSlice(values)
-
-	//factor := 255.0 / curMax
-	for i := 0; i < rows; i++ {
-		for j := 0; j < cols; j++ {
-			// val := values[i][j] * factor
-			val := values[i][j]
-			ret[i][j] = ops.ClampPixel(val)
-		}
-	}
 	return func() [][]uint8 {
+		cols, rows := len(values[0]), len(values)
+		ret := ops.GenerateSlice[uint8](cols, rows)
+		// curMax := ops.FindMaxIn2DSlice(values)
+
+		//factor := 255.0 / curMax
+		for i := 0; i < rows; i++ {
+			for j := 0; j < cols; j++ {
+				// val := values[i][j] * factor
+				val := values[i][j]
+				ret[i][j] = ops.ClampPixel(val)
+			}
+		}
 		return ret
 	}
 }
