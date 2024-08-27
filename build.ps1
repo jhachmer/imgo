@@ -1,7 +1,12 @@
-# Write-Output "Building imgo.exe at ./bin/"
-# $env:GOOS="windows";$env:GOARCH="amd64"; go build -o .\bin\imgo.exe .\cmd\imgo\main.go
+# Write-Output "Building imgo_cli.exe at ./bin/"
+# $env:GOOS="windows";$env:GOARCH="amd64"; go build -o .\bin\imgo_cli.exe .\cmd\imgo_cli\main.go
 
-Write-Output "Building imgo application at ./bin/"
+param(
+    [ValidateSet("test", "api", "cli")]
+    [string]$buildType = "test"
+)
+
+Write-Output "Building $buildType application at ./bin/"
 
 $env:GOOS = "windows"
 $env:GOARCH = "amd64"
@@ -9,16 +14,16 @@ $env:GOARCH = "amd64"
 $outputFile = ".\bin\imgo.exe"
 $mainFile = ".\main.go"
 
-# switch ($buildType) {
-#     "cli" {
-#         $outputFile = ".\bin\imgo-cli.exe"
-#         $mainFile = ".\cmd\imgo\main.go"
-#     }
-#     "api" {
-#         $outputFile = ".\bin\imgo-api.exe"
-#         $mainFile = ".\cmd\imgo_server\main.go"
-#     }
-# }
+switch ($buildType) {
+    "api" {
+        $outputFile = ".\bin\imgo-api.exe"
+        $mainFile = ".\cmd\imgo_server\main.go"
+    }
+    "cli" {
+        $outputFile = ".\bin\imgo-cli.exe"
+        $mainFile = ".\cmd\imgo_cli\main.go"
+    }
+}
 
 go build -o $outputFile $mainFile
 
