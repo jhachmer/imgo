@@ -4,7 +4,6 @@ import (
 	"image"
 	"image/color"
 	"image/png"
-	"log"
 	"os"
 
 	"github.com/jhachmer/imgo/internal/ops"
@@ -24,10 +23,14 @@ type ImageGray struct {
 	Pixels [][]uint8
 }
 
-func NewImageGray(path string) *ImageGray {
-	return &ImageGray{
-		Pixels: FileToSliceGray(path),
+func NewImageGray(path string) (*ImageGray, error) {
+	pix, err := FileToSliceGray(path)
+	if err != nil {
+		return nil, err
 	}
+	return &ImageGray{
+		Pixels: pix,
+	}, nil
 }
 
 func (i *ImageGray) Output() [][]uint8 {
@@ -52,44 +55,41 @@ func ConvertToGrayScale(img image.Image) *image.Gray {
 // ReadImageFromPath reads an image from filesystem
 // Requires filepath from working directory
 // Returns image as pointer to Go-type image.Image
-func ReadImageFromPath(path string) image.Image {
+func ReadImageFromPath(path string) (image.Image, error) {
 	file, err := os.Open(path)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-	defer func() {
-		if err := file.Close(); err != nil {
-			log.Fatal(err)
-		}
-	}()
+	defer file.Close()
 
 	sourceImg, _, err := image.Decode(file)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
-	return sourceImg
+	return sourceImg, nil
 }
 
-func FileToSliceGray(path string) [][]uint8 {
-	img := ReadImageFromPath(path)
+func FileToSliceGray(path string) ([][]uint8, error) {
+	img, err := ReadImageFromPath(path)
+	if err != nil {
+		return nil, err
+	}
 	gray := ConvertToGrayScale(img)
-	return ToSlice(gray)
+	return ToSlice(gray), nil
 }
 
 // ToPNG  writes Go image to filesystem
 // Creates image at given filepath
-func ToPNG(outputFileName string, newImage *image.Gray) {
+func ToPNG(outputFileName string, newImage *image.Gray) error {
 	f, err := os.Create(outputFileName + ".png")
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
-	defer func() {
-		if err := f.Close(); err != nil {
-		}
-	}()
+	defer f.Close()
 	if err := png.Encode(f, newImage); err != nil {
-		log.Fatal(err)
+		return err
 	}
+	return nil
 }
 
 // ToImage  converts a 2D-Slice to an image
