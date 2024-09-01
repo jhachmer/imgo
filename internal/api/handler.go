@@ -60,7 +60,10 @@ func handleUpload(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "No header", http.StatusInternalServerError)
 		return
 	}
-	filename, nbBytes := utils.SaveUpload(file, header, w)
+	filename, nbBytes, err := utils.SaveUpload(file, header)
+	if err != nil {
+		http.Error(w, "Error while saving uploaded file", http.StatusInternalServerError)
+	}
 	var ur = UploadResponse{
 		Filename:     filename,
 		BytesWritten: nbBytes,
