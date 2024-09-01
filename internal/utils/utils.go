@@ -25,21 +25,18 @@ func WriteJSON(w http.ResponseWriter, status int, v any) error {
 	return nil
 }
 
-// TODO: user
-func SaveUpload(file multipart.File, header *multipart.FileHeader, w http.ResponseWriter) (string, int64) {
+func SaveUpload(file multipart.File, header *multipart.FileHeader) (string, int64, error) {
 	filename := FilenameWithUUID(header.Filename)
 	dst, err := os.Create(filepath.Join(config.IMAGELOCATION, filename))
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return "", 0
+		return "", 0, err
 	}
 	defer dst.Close()
 	nbBytes, err := io.Copy(dst, file)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return "", 0
+		return "", 0, err
 	}
-	return filename, nbBytes
+	return filename, nbBytes, nil
 }
 
 func checkDir(path string) bool {
