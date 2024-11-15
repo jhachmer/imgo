@@ -18,14 +18,18 @@ switch ($buildType) {
     "api" {
         $outputFile = ".\bin\imgo-api.exe"
         $mainFile = ".\cmd\imgo_server\main.go"
+        go build -o $outputFile $mainFile
     }
     "cli" {
         $outputFile = ".\bin\imgo-cli.exe"
         $mainFile = ".\cmd\imgo_cli\main.go"
+        go build -o $outputFile $mainFile
+    }
+    "test" {
+        go test -v ./...
     }
 }
 
-go build -o $outputFile $mainFile
 
 if ($LASTEXITCODE -eq 0) {
     Write-Output "Build successful: $outputFile"
