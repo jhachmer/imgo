@@ -1,6 +1,7 @@
 package edge
 
 import (
+	"github.com/jhachmer/imgo/pkg/img"
 	"math"
 
 	"github.com/jhachmer/imgo/internal/ops"
@@ -17,6 +18,8 @@ func NewCanny(s *Sobel, tLow, tHigh int) *Canny {
 	}
 	return c
 }
+
+var _ img.Outputable = (*Canny)(nil)
 
 func (c *Canny) Output() [][]uint8 {
 	return c.BinaryImage

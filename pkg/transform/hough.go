@@ -1,6 +1,7 @@
 package transform
 
 import (
+	"github.com/jhachmer/imgo/pkg/img"
 	"math"
 	"slices"
 	"sync"
@@ -17,6 +18,8 @@ func NewHoughTransform(input [][]uint8, m, n int) *HoughTransform {
 	hough.Accumulator = HoughLines(input, m, n)
 	return hough
 }
+
+var _ img.Outputable = (*HoughTransform)(nil)
 
 func (h *HoughTransform) Output() [][]uint8 {
 	return ScaleAccumulator(h.Accumulator)

@@ -56,6 +56,8 @@ func NewInverseDFT(dft *DFT) *InverseDFT {
 	return inverse
 }
 
+var _ img.Outputable = (*InverseDFT)(nil)
+
 func (iDFT *InverseDFT) Output() [][]uint8 {
 	return makeInverseOutput(iDFT.ImageReal)()
 }
@@ -70,6 +72,8 @@ func NewDFTMagnitude(dft *DFT) *DFTMagnitude {
 	}
 }
 
+var _ img.Outputable = (*DFTMagnitude)(nil)
+
 func (dftM *DFTMagnitude) Output() [][]uint8 {
 	return makeLogarithmicOutput(dftM.Values)()
 }
@@ -83,6 +87,8 @@ func NewDFTPhase(dft *DFT) *DFTPhase {
 		Values: dft.DFTPhase(),
 	}
 }
+
+var _ img.Outputable = (*DFTPhase)(nil)
 
 func (dftP *DFTPhase) Output() [][]uint8 {
 	return makeLogarithmicOutput(dftP.Values)()

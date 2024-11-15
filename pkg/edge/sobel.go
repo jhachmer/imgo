@@ -1,6 +1,7 @@
 package edge
 
 import (
+	"github.com/jhachmer/imgo/pkg/img"
 	"slices"
 	"sync"
 
@@ -22,6 +23,8 @@ func NewSobel(in [][]uint8) *Sobel {
 	s.Magnitudes = s.SobelMagnitudes()
 	return s
 }
+
+var _ img.Outputable = (*Sobel)(nil)
 
 func (s *Sobel) Output() [][]uint8 {
 	return s.Magnitudes

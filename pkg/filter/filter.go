@@ -20,6 +20,8 @@ func NewFilter(img *img.ImageGray, k *kernel.Kernel2D, derivative bool) *Filter 
 	}
 }
 
+var _ img.Outputable = (*Filter)(nil)
+
 func (f Filter) Output() [][]uint8 {
 	return f.Pixels
 }
