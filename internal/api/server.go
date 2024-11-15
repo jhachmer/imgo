@@ -1,25 +1,25 @@
 package api
 
 import (
+	"github.com/jhachmer/imgo/internal/store"
 	"log"
 	"net/http"
 
 	"github.com/jhachmer/imgo/internal/config"
-	"github.com/jhachmer/imgo/internal/store"
 	"github.com/jhachmer/imgo/internal/utils"
 )
 
 type Server struct {
 	Addr   string
 	Prefix string
-	Store  *store.Store
+	Store  store.Store
 }
 
 func NewServer(addr, prefix string, store *store.Store) *Server {
 	return &Server{
 		Addr:   addr,
 		Prefix: prefix,
-		Store:  store,
+		Store:  *store,
 	}
 }
 
