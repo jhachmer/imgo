@@ -7,7 +7,10 @@ import (
 )
 
 func BenchTestDataFourier() *DFT {
-	inputImg := img.ReadImageFromPath("../images/Lenna.png")
+	inputImg, err := img.ReadImageFromPath("../images/Lenna.png")
+	if err != nil {
+		panic(err)
+	}
 
 	pixs := img.ToSlice(img.ConvertToGrayScale(inputImg))
 
