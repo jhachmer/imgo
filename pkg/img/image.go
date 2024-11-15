@@ -13,7 +13,7 @@ type ImageType interface {
 	ImageGray
 }
 
-type Outputer interface {
+type Outputable interface {
 	Output() [][]uint8
 }
 
@@ -32,6 +32,8 @@ func NewImageGray(path string) (*ImageGray, error) {
 		Pixels: pix,
 	}, nil
 }
+
+var _ Outputable = (*ImageGray)(nil)
 
 func (i *ImageGray) Output() [][]uint8 {
 	return i.Pixels
@@ -94,7 +96,7 @@ func ToPNG(outputFileName string, newImage *image.Gray) error {
 
 // ToImage  converts a 2D-Slice to an image
 // can be saved to file system using decoder
-func ToImage(output Outputer) *image.Gray {
+func ToImage(output Outputable) *image.Gray {
 	var (
 		pixels = output.Output()
 		bounds = image.Rect(0, 0, len(pixels[0]), len(pixels))
