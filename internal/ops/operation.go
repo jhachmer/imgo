@@ -69,6 +69,17 @@ func FindMaxIn2DSlice[T mathlib.Number](s [][]T) T {
 	return curMax
 }
 
+func FindMinIn2DSlice[T mathlib.Number](s [][]T) T {
+	var subMin, curMin T
+	for i := range s {
+		subMin = slices.Min(s[i])
+		if subMin > curMin {
+			curMin = subMin
+		}
+	}
+	return curMin
+}
+
 func Reduce[TValue, TResult any](values []TValue, fn func(TResult, TValue) TResult, initialValue TResult) TResult {
 	result := initialValue
 	for _, value := range values {

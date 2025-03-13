@@ -1,12 +1,11 @@
 package mathlib
 
 type Number interface {
-	NumberUnsigned
-	NumberSigned
+	~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~int | ~int16 | ~int32 | ~int64 | ~float32 | ~float64
 }
 
 type NumberUnsigned interface {
-	~int | ~int16 | ~int32 | ~int64 | ~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~float32 | ~float64
+	~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64
 }
 
 type NumberSigned interface {
@@ -20,7 +19,7 @@ func Abs[T NumberSigned](x T) T {
 	return x
 }
 
-func Max[T Number](a []T) T {
+func Max[T NumberSigned | NumberUnsigned](a []T) T {
 	var m T
 	for i := range a {
 		if a[i] > m {
@@ -30,8 +29,8 @@ func Max[T Number](a []T) T {
 	return m
 }
 
-func Min[T Number](a []T) T {
-	var m T
+func Min[T NumberSigned | NumberUnsigned](a []T) T {
+	var m = a[0]
 	for i := range a {
 		if a[i] < m {
 			m = a[i]

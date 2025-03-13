@@ -22,7 +22,7 @@ func NewHoughTransform(input [][]uint8, m, n int) *HoughTransform {
 var _ img.Outputable = (*HoughTransform)(nil)
 
 func (h *HoughTransform) Output() [][]uint8 {
-	return ScaleAccumulator(h.Accumulator)
+	return scaleAccumulator(h.Accumulator)
 }
 
 // HoughLines transforms binary image input (2D-slice of uint8's) to hough space
@@ -69,8 +69,8 @@ func HoughLines(pixel [][]uint8, m, n int) [][]int {
 	return A
 }
 
-// ScaleAccumulator scales accumulator to uint8 range for image output
-func ScaleAccumulator(A [][]int) [][]uint8 {
+// scaleAccumulator scales accumulator to uint8 range for image output
+func scaleAccumulator(A [][]int) [][]uint8 {
 	var curMax = 0
 	N := len(A)
 	M := len(A[0])

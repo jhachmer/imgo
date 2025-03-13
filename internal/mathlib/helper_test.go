@@ -144,6 +144,9 @@ func TestMax(t *testing.T) {
 	}
 	tests := []testCase[int]{
 		{name: "[1,2,3] Max = 3", args: args[int]{[]int{1, 2, 3}}, want: 3},
+		{name: "[1,2,3,5,8,2,4] Max = 8", args: args[int]{[]int{1, 2, 3, 5, 8, 2, 4}}, want: 8},
+		{name: "[1] Max = 1", args: args[int]{[]int{1}}, want: 1},
+		{name: "[9,9,9] Max = 9", args: args[int]{[]int{9, 9, 9}}, want: 9},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -155,5 +158,25 @@ func TestMax(t *testing.T) {
 }
 
 func TestMin(t *testing.T) {
-
+	type args[T Number] struct {
+		a []T
+	}
+	type testCase[T Number] struct {
+		name string
+		args args[T]
+		want T
+	}
+	tests := []testCase[int]{
+		{name: "[1,2,3] Min = 1", args: args[int]{[]int{1, 2, 3}}, want: 1},
+		{name: "[1,2,3,5,8,2,4] Min = 1", args: args[int]{[]int{1, 2, 3, 5, 8, 2, 4}}, want: 1},
+		{name: "[1] Min = 1", args: args[int]{[]int{1}}, want: 1},
+		{name: "[9,9,9] Min = 9", args: args[int]{[]int{9, 9, 9}}, want: 9},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := Min(tt.args.a); got != tt.want {
+				t.Errorf("Min() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }

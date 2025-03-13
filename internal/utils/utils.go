@@ -2,16 +2,12 @@ package utils
 
 import (
 	"encoding/json"
-	"io"
 	"math"
-	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
-
-	"github.com/jhachmer/imgo/internal/config"
 )
 
 // WriteJSON encodes values and sends them over ResponseWriter with status code
@@ -23,20 +19,6 @@ func WriteJSON(w http.ResponseWriter, status int, v any) error {
 		return err
 	}
 	return nil
-}
-
-func SaveUpload(file multipart.File, header *multipart.FileHeader) (string, int64, error) {
-	filename := FilenameWithUUID(header.Filename)
-	dst, err := os.Create(filepath.Join(config.IMAGELOCATION, filename))
-	if err != nil {
-		return "", 0, err
-	}
-	defer dst.Close()
-	nbBytes, err := io.Copy(dst, file)
-	if err != nil {
-		return "", 0, err
-	}
-	return filename, nbBytes, nil
 }
 
 func checkDir(path string) bool {
